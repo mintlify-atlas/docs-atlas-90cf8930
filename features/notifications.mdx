@@ -1,0 +1,281 @@
+---
+title: 'Notifications'
+description: 'Receive timely alerts for maintenance and document renewals'
+icon: 'bell'
+---
+
+My Auto Guide uses a sophisticated local notification system to ensure you never miss important maintenance deadlines or document renewals. Notifications work even when the app is closed, keeping you informed 24/7.
+
+## Notification System Overview
+
+<CardGroup cols={2}>
+  <Card title="Local Notifications" icon="mobile">
+    No internet required - alerts work offline using your device's notification system
+  </Card>
+  <Card title="Scheduled Alerts" icon="calendar-clock">
+    Notifications are scheduled for exact due dates based on your maintenance history
+  </Card>
+  <Card title="Immediate Warnings" icon="triangle-exclamation">
+    Overdue items trigger instant notifications as soon as you set maintenance dates
+  </Card>
+  <Card title="Multi-Platform" icon="devices">
+    Works on Android, iOS, Linux, and macOS
+  </Card>
+</CardGroup>
+
+## How Notifications Work
+
+The notification system integrates deeply with the maintenance tracking feature:
+
+### Automatic Scheduling
+
+When you save maintenance dates in the "Parametrización de mantenimientos" screen:
+
+<Steps>
+  <Step title="Calculate Due Dates">
+    The app calculates when each maintenance item will be due based on:
+    - Last service date you entered
+    - Standard service interval (15, 25, 90, or 365 days)
+    
+    Formula: `Due Date = Last Service Date + Service Interval`
+  </Step>
+  
+  <Step title="Cancel Existing Notifications">
+    Any previously scheduled notifications for that maintenance type are canceled to avoid duplicates.
+  </Step>
+  
+  <Step title="Schedule New Notification">
+    If the due date is in the future, a notification is scheduled for that exact date and time.
+    
+    If the due date has already passed, an immediate notification is triggered.
+  </Step>
+  
+  <Step title="Store in System">
+    The notification is registered with your device's operating system using the Flutter Local Notifications plugin.
+  </Step>
+</Steps>
+
+<Info>
+Notifications persist across app restarts and device reboots on most platforms, ensuring you won't miss alerts even if you haven't opened the app recently.
+</Info>
+
+## Notification Types
+
+### Maintenance Reminders
+
+Each maintenance item generates its own notification:
+
+| Maintenance Type | Notification Content |
+|------------------|----------------------|
+| Chain Lubrication | "Debes realizar el mantenimiento de lubricación de cadena" |
+| Air Filter | "Debes realizar el mantenimiento de filtro de aire" |
+| Oil Change | "Debes realizar el mantenimiento de cambio de aceite" |
+| SOAT | "Debes realizar el mantenimiento de SOAT" |
+| Technomechanical | "Debes realizar el mantenimiento de Tecnomecánica" |
+
+All notifications share the title:
+**"¡Mantenimiento requerido!"** (Maintenance Required!)
+
+### Document Expiration Alerts
+
+Since SOAT and Technomechanical inspections are also tracked as maintenance items with 365-day intervals, you receive notifications when these documents need renewal.
+
+<Tip>
+Set your SOAT and Technomechanical dates to match your document expiration dates for perfectly timed renewal reminders.
+</Tip>
+
+## Notification Channels
+
+The app uses a dedicated notification channel:
+
+- **Channel ID**: `mantenimiento_channel`
+- **Channel Name**: "Mantenimientos"
+- **Description**: "Notificaciones de mantenimientos vencidos"
+- **Importance**: Maximum (ensures notifications aren't silenced)
+- **Priority**: High (appears at the top of notification list)
+
+<Note>
+On Android 8.0+, you can customize notification behavior (sound, vibration, light) by long-pressing any notification and going to channel settings.
+</Note>
+
+## Notification Behavior
+
+### Scheduling Details
+
+```dart
+flutterLocalNotificationsPlugin.zonedSchedule(
+  tipo.hashCode,                    // Unique ID per maintenance type
+  '¡Mantenimiento requerido!',      // Title
+  'Debes realizar el mantenimiento de $tipo.',  // Body
+  tz.TZDateTime.from(fechaVencimiento, tz.local),  // Exact due date
+  platformChannelSpecifics,
+  androidAllowWhileIdle: true,      // Deliver even in battery saver
+  uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+  matchDateTimeComponents: DateTimeComponents.dateAndTime,
+);
+```
+
+### Unique Notification IDs
+
+Each maintenance type has a unique notification ID based on its name hash:
+- Prevents duplicate notifications
+- Allows individual cancellation and rescheduling
+- Enables multiple simultaneous maintenance alerts
+
+## When Notifications Appear
+
+### Future Due Dates (Scheduled)
+
+If maintenance is due in the future:
+- Notification scheduled for the exact due date
+- Appears at the scheduled time even if the app is closed
+- Shows in the notification tray with the app icon
+- Plays system notification sound
+- Vibrates based on device settings
+
+### Overdue Maintenance (Immediate)
+
+If maintenance is already overdue:
+- Notification appears immediately when you save dates
+- In-app snackbar also shows: "Hay mantenimientos vencidos, realizar cuanto antes"
+- Notification persists in tray until dismissed
+- Dashboard indicator shows red pulsing animation
+
+<Warning>
+Overdue notifications indicate critical maintenance that should be addressed immediately to avoid vehicle damage or safety issues.
+</Warning>
+
+## Initialization Process
+
+Notifications are initialized in the `main.dart` file when the app starts:
+
+<Steps>
+  <Step title="Initialize Flutter Bindings">
+    `WidgetsFlutterBinding.ensureInitialized()` ensures the framework is ready.
+  </Step>
+  
+  <Step title="Configure Supabase">
+    Database connection is established for syncing maintenance data.
+  </Step>
+  
+  <Step title="Initialize Timezones">
+    `tz.initializeTimeZones()` loads timezone data for accurate scheduling across different regions.
+  </Step>
+  
+  <Step title="Configure Notification Plugin">
+    Platform-specific settings are configured:
+    - **Android**: Uses app launcher icon for notifications
+    - **iOS**: Requests permission to display alerts, sounds, and badges
+    - **Linux**: Sets default action name
+    - **macOS**: Configures Darwin notification settings
+  </Step>
+  
+  <Step title="Initialize Plugin">
+    `flutterLocalNotificationsPlugin.initialize()` registers the plugin with the operating system.
+  </Step>
+</Steps>
+
+## Permission Handling
+
+### Android
+- No permission required for local notifications (pre-Android 13)
+- Android 13+ users see a permission request on first notification
+- Notifications work by default on older versions
+
+### iOS
+- Permission requested automatically on app first launch
+- Users can enable/disable in iOS Settings > My Auto Guide > Notifications
+- Alert, sound, and badge permissions requested together
+
+### Linux & macOS
+- Notifications enabled by default
+- Users can control via system notification preferences
+
+<Info>
+The app uses **local notifications**, not push notifications. This means no server infrastructure or internet connection is required for alerts to work.
+</Info>
+
+## Notification Settings
+
+Notifications are configured with:
+
+- **Maximum importance**: Ensures visibility on all devices
+- **High priority**: Appears above other notifications
+- **Android while idle**: Notifications deliver even in Doze mode
+- **Absolute time interpretation**: Schedules at exact due dates, not relative times
+- **Date and time matching**: Triggers on specific date + time combination
+
+## Re-scheduling Behavior
+
+Whenever you update maintenance dates:
+
+1. **Old notifications canceled**: Previous alerts for that maintenance type are removed
+2. **New calculations performed**: Due dates recalculated based on new last service date
+3. **New notifications scheduled**: Fresh alerts scheduled for updated due dates
+4. **State synchronized**: Dashboard and database reflect the new schedule
+
+This ensures you never receive outdated notifications.
+
+## Dashboard Integration
+
+Notifications work hand-in-hand with visual indicators:
+
+- **Green indicators**: No notifications scheduled (maintenance current)
+- **Yellow indicators**: Notification scheduled in near future
+- **Red indicators**: Notification either triggered or will trigger soon
+- **Pulsing red**: Notification has already fired for overdue maintenance
+
+## Troubleshooting
+
+### Notifications Not Appearing
+
+<Steps>
+  <Step title="Check Permissions">
+    Ensure the app has notification permissions enabled in device settings.
+  </Step>
+  
+  <Step title="Verify Maintenance Dates">
+    Open "Parametrización de mantenimientos" and confirm all dates are set.
+  </Step>
+  
+  <Step title="Check Battery Settings">
+    On Android, ensure the app is not battery-optimized (Settings > Apps > My Auto Guide > Battery > Don't optimize).
+  </Step>
+  
+  <Step title="Re-save Dates">
+    Update maintenance dates and tap "Guardar y calcular" to reschedule notifications.
+  </Step>
+</Steps>
+
+### Testing Notifications
+
+To test the notification system:
+
+1. Set a maintenance date to yesterday or a recent past date
+2. Tap "Guardar y calcular"
+3. You should see:
+   - Immediate notification in the system tray
+   - Red snackbar at bottom of screen
+   - Red indicator on dashboard
+
+<Tip>
+For best results, grant all notification permissions when first launching the app. You can always adjust notification settings later in your device's system settings.
+</Tip>
+
+## Technical Implementation
+
+The notification system uses:
+
+- **flutter_local_notifications**: Cross-platform notification plugin
+- **timezone**: Accurate scheduling across different time zones
+- **Unique IDs**: Hash-based IDs prevent notification conflicts
+- **Lifecycle management**: Notifications persist beyond app lifecycle
+- **Background execution**: Android's `androidAllowWhileIdle` ensures delivery
+
+## Web Platform Note
+
+<Warning>
+Local notifications are not supported on the web platform. If you run the app in a browser, you'll see a message: "Las notificaciones automáticas no están disponibles en la versión web."
+
+For full notification support, use the Android, iOS, or desktop versions of the app.
+</Warning>

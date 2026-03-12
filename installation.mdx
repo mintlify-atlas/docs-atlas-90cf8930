@@ -1,0 +1,570 @@
+---
+title: 'Installation'
+description: 'Install My Auto Guide on your Android or iOS device'
+---
+
+## Overview
+
+My Auto Guide is available for both Android and iOS devices. This guide covers installation from app stores for end users, as well as building from source for developers.
+
+## System Requirements
+
+### Android
+- **Minimum Version**: Android 6.0 (API level 23)
+- **Recommended**: Android 10 or higher
+- **Storage**: ~50 MB for app + storage for documents
+- **RAM**: 2 GB minimum, 4 GB recommended
+- **Internet**: Required for authentication and document sync
+
+### iOS
+- **Minimum Version**: iOS 12.0
+- **Recommended**: iOS 14 or higher
+- **Storage**: ~50 MB for app + storage for documents
+- **RAM**: 2 GB minimum
+- **Internet**: Required for authentication and document sync
+
+## Installation from App Stores
+
+<Tabs>
+  <Tab title="Android">
+    ### Google Play Store Installation
+    
+    <Steps>
+      <Step title="Open Google Play Store">
+        1. Launch the **Google Play Store** app on your Android device
+        2. Ensure you're signed in with your Google account
+      </Step>
+      
+      <Step title="Search for My Auto Guide">
+        1. Tap the search bar at the top
+        2. Type **"My Auto Guide"**
+        3. Look for the app with the vehicle icon
+      </Step>
+      
+      <Step title="Install the app">
+        1. Tap **"Install"**
+        2. Review the requested permissions
+        3. Tap **"Accept"** to begin download
+        4. Wait for installation to complete
+      </Step>
+      
+      <Step title="Launch the app">
+        1. Tap **"Open"** from the Play Store, or
+        2. Find the app icon in your app drawer
+        3. Grant required permissions when prompted
+      </Step>
+    </Steps>
+    
+    ### Alternative: Direct APK Installation
+    
+    If you have the APK file:
+    
+    ```bash
+    # Enable installation from unknown sources in Settings > Security
+    # Then install the APK
+    adb install my_auto_guide.apk
+    ```
+    
+    <Warning>
+      Only install APK files from trusted sources. Installing from unknown sources can pose security risks.
+    </Warning>
+  </Tab>
+  
+  <Tab title="iOS">
+    ### App Store Installation
+    
+    <Steps>
+      <Step title="Open App Store">
+        1. Launch the **App Store** on your iOS device
+        2. Ensure you're signed in with your Apple ID
+      </Step>
+      
+      <Step title="Search for My Auto Guide">
+        1. Tap the **Search** tab at the bottom
+        2. Type **"My Auto Guide"**
+        3. Select the app from search results
+      </Step>
+      
+      <Step title="Install the app">
+        1. Tap **"GET"** or the download icon
+        2. Authenticate with Face ID, Touch ID, or your Apple ID password
+        3. Wait for download and installation to complete
+      </Step>
+      
+      <Step title="Launch the app">
+        1. Tap **"OPEN"** from the App Store, or
+        2. Find the app icon on your home screen
+        3. Grant required permissions when prompted
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Required Permissions
+
+My Auto Guide requests the following permissions for full functionality:
+
+### Location Permissions (GPS)
+
+<CodeGroup>
+```xml Android (AndroidManifest.xml)
+<!-- Fine GPS location for navigation -->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+<!-- Coarse location as fallback -->
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+<!-- Background location for route tracking -->
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+```
+
+```xml iOS (Info.plist)
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>My Auto Guide needs your location for GPS navigation and route planning</string>
+
+<key>NSLocationAlwaysUsageDescription</key>
+<string>My Auto Guide uses background location to track routes</string>
+```
+</CodeGroup>
+
+**Used for:**
+- GPS navigation with OpenStreetMap
+- Route planning and tracking
+- Distance calculation for maintenance scheduling
+
+### Camera Permission
+
+<CodeGroup>
+```xml Android
+<uses-permission android:name="android.permission.CAMERA"/>
+```
+
+```xml iOS
+<key>NSCameraUsageDescription</key>
+<string>My Auto Guide needs camera access to scan and upload vehicle documents</string>
+```
+</CodeGroup>
+
+**Used for:**
+- Scanning documents (SOAT, registration, insurance)
+- Taking photos of vehicle damage or maintenance
+- Quick document uploads
+
+### Storage Permission
+
+<CodeGroup>
+```xml Android
+<!-- Android 13+ (API 33+) -->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+
+<!-- Android 12 and below -->
+<uses-permission 
+    android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32"/>
+
+<uses-permission 
+    android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    android:maxSdkVersion="29"/>
+```
+
+```xml iOS
+<key>NSPhotoLibraryUsageDescription</key>
+<string>My Auto Guide needs access to save and load vehicle documents</string>
+```
+</CodeGroup>
+
+**Used for:**
+- Uploading document files (PDF, images)
+- Saving downloaded documents locally
+- Accessing vehicle photos
+
+### Internet Permission
+
+```xml Android
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+**Used for:**
+- Supabase authentication and database
+- Document storage and sync
+- RUNT integration
+- Map tile loading
+
+<Note>
+  All permissions are requested at runtime when the feature is first used. You can review and modify permissions anytime in your device settings.
+</Note>
+
+## Granting Permissions
+
+### Android
+
+1. **During first use**: The app prompts for permissions when you access each feature
+2. **Manual permission management**:
+   ```
+   Settings > Apps > My Auto Guide > Permissions
+   ```
+3. **Enable all permissions** for full functionality
+
+### iOS
+
+1. **During first use**: iOS prompts appear automatically
+2. **Manual permission management**:
+   ```
+   Settings > My Auto Guide > Permissions
+   ```
+3. **Location**: Choose "While Using the App" or "Always" for navigation
+
+## Building from Source (Developers)
+
+Developers can build My Auto Guide from the Flutter source code.
+
+### Prerequisites
+
+<Steps>
+  <Step title="Install Flutter SDK">
+    Download and install Flutter SDK (3.3.0 or higher):
+    
+    ```bash
+    # Verify Flutter installation
+    flutter --version
+    
+    # Expected output:
+    # Flutter 3.3.0 • channel stable
+    # Dart 3.x.x
+    ```
+    
+    [Official Flutter installation guide](https://docs.flutter.dev/get-started/install)
+  </Step>
+  
+  <Step title="Set up development environment">
+    <Tabs>
+      <Tab title="Android">
+        1. Install **Android Studio**
+        2. Install **Android SDK** (API level 23+)
+        3. Set up an Android emulator or connect a physical device
+        4. Run `flutter doctor` to verify setup:
+        
+        ```bash
+        flutter doctor -v
+        ```
+      </Tab>
+      
+      <Tab title="iOS">
+        1. Install **Xcode** (macOS only)
+        2. Install Xcode Command Line Tools:
+        
+        ```bash
+        xcode-select --install
+        ```
+        
+        3. Open Xcode and accept license agreements
+        4. Set up iOS simulator or connect a physical device
+        5. Install CocoaPods:
+        
+        ```bash
+        sudo gem install cocoapods
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/your-org/my-auto-guide.git
+    cd my-auto-guide
+    ```
+  </Step>
+  
+  <Step title="Install dependencies">
+    ```bash
+    flutter pub get
+    ```
+    
+    This installs all packages from `pubspec.yaml`:
+    
+    ```yaml
+    dependencies:
+      flutter:
+        sdk: flutter
+      
+      # Backend
+      supabase_flutter: ^2.10.0
+      
+      # UI Components
+      dotted_border: ^3.1.0
+      photo_view: ^0.14.0
+      
+      # File Management
+      file_picker: ^8.0.0
+      image_picker: ^1.1.0
+      
+      # Maps and Location
+      flutter_map: ^6.1.0
+      latlong2: ^0.9.1
+      geolocator: ^13.0.2
+      
+      # Notifications
+      flutter_local_notifications: ^17.1.2
+      timezone: ^0.9.4
+      
+      # PDF Viewer
+      syncfusion_flutter_pdfviewer: ^31.1.18
+    ```
+  </Step>
+  
+  <Step title="Configure Supabase">
+    Update Supabase credentials in `lib/main.dart`:
+    
+    ```dart
+    await Supabase.initialize(
+      url: 'YOUR_SUPABASE_URL',
+      anonKey: 'YOUR_SUPABASE_ANON_KEY',
+    );
+    ```
+    
+    <Warning>
+      Never commit real credentials to version control. Use environment variables or a configuration file that's gitignored.
+    </Warning>
+  </Step>
+  
+  <Step title="Run the app">
+    <CodeGroup>
+    ```bash Development Mode
+    # List available devices
+    flutter devices
+    
+    # Run on connected device
+    flutter run
+    
+    # Run on specific device
+    flutter run -d <device-id>
+    
+    # Run with hot reload enabled (default)
+    flutter run --hot
+    ```
+    
+    ```bash Debug Build
+    # Android debug APK
+    flutter build apk --debug
+    
+    # iOS debug build
+    flutter build ios --debug
+    ```
+    
+    ```bash Release Build
+    # Android release APK
+    flutter build apk --release
+    
+    # Android App Bundle (for Play Store)
+    flutter build appbundle --release
+    
+    # iOS release build
+    flutter build ios --release
+    ```
+    </CodeGroup>
+  </Step>
+</Steps>
+
+### Development Environment Setup
+
+```dart
+// main.dart - Entry point
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: 'https://xstzerpnupubyfbhrrzu.supabase.co',
+    anonKey: 'YOUR_ANON_KEY',
+  );
+
+  // Initialize timezone support for notifications
+  tz.initializeTimeZones();
+
+  // Configure local notifications
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  const DarwinInitializationSettings initializationSettingsDarwin =
+      DarwinInitializationSettings();
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsDarwin,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  runApp(const MyApp());
+}
+```
+
+### Project Structure
+
+```
+my_auto_guide/
+├── lib/
+│   ├── main.dart                      # App entry point
+│   ├── login_screen.dart              # Authentication
+│   ├── registro_screen.dart           # User registration
+│   ├── Agregar_vehiculo.dart          # Vehicle registration (motorcycles)
+│   ├── Agregar_carro.dart             # Vehicle registration (cars)
+│   ├── inicio_app.dart                # Main dashboard
+│   ├── parametrizacion_mantenimientos.dart  # Maintenance config
+│   ├── rutas_screen.dart              # GPS navigation
+│   ├── runt_webview.dart              # RUNT integration
+│   └── guia.dart                      # Safety guides
+├── android/
+│   └── app/src/main/AndroidManifest.xml
+├── ios/
+│   └── Runner/Info.plist
+├── assets/                            # Images and icons
+└── pubspec.yaml                       # Dependencies
+```
+
+## Troubleshooting Installation
+
+<AccordionGroup>
+  <Accordion title="Android: Installation blocked">
+    If you see "Install blocked" or "Unknown sources":
+    
+    1. Go to **Settings > Security**
+    2. Enable **"Install unknown apps"** for your browser or file manager
+    3. Retry installation
+    
+    This is only needed for direct APK installation, not for Play Store installs.
+  </Accordion>
+  
+  <Accordion title="iOS: Untrusted Developer">
+    If you see "Untrusted Enterprise Developer":
+    
+    1. Go to **Settings > General > VPN & Device Management**
+    2. Find the developer profile
+    3. Tap **"Trust"**
+    4. Relaunch the app
+  </Accordion>
+  
+  <Accordion title="Permissions not being requested">
+    If the app doesn't prompt for permissions:
+    
+    1. Manually grant permissions in device settings
+    2. Restart the app
+    3. Try accessing the feature that requires the permission
+    
+    **Android**: Settings > Apps > My Auto Guide > Permissions
+    **iOS**: Settings > My Auto Guide
+  </Accordion>
+  
+  <Accordion title="Flutter build errors">
+    Common build issues and solutions:
+    
+    ```bash
+    # Clear Flutter cache
+    flutter clean
+    flutter pub get
+    
+    # Update Flutter to latest stable
+    flutter upgrade
+    
+    # Verify doctor
+    flutter doctor -v
+    
+    # Android: Clear Gradle cache
+    cd android
+    ./gradlew clean
+    cd ..
+    
+    # iOS: Clean build and pods
+    cd ios
+    rm -rf Pods Podfile.lock
+    pod install
+    cd ..
+    ```
+  </Accordion>
+  
+  <Accordion title="Supabase connection issues">
+    If you can't connect to Supabase:
+    
+    1. Verify your internet connection
+    2. Check that Supabase URL and anon key are correct
+    3. Ensure your Supabase project is active
+    4. Check firewall/VPN settings that might block connections
+    5. Verify the Supabase project isn't paused (free tier)
+  </Accordion>
+  
+  <Accordion title="Maps not loading">
+    If OpenStreetMap tiles don't load:
+    
+    1. Ensure internet permission is granted
+    2. Check your internet connection
+    3. Verify location permissions are enabled
+    4. Try clearing app cache
+  </Accordion>
+</AccordionGroup>
+
+## Post-Installation Steps
+
+After successful installation:
+
+<Steps>
+  <Step title="Grant all permissions">
+    Allow GPS, Camera, and Storage permissions when prompted for full functionality.
+  </Step>
+  
+  <Step title="Create your account">
+    Follow the [Quickstart guide](/quickstart) to set up your account and add your first vehicle.
+  </Step>
+  
+  <Step title="Enable notifications">
+    Ensure notifications are enabled in device settings to receive maintenance reminders.
+  </Step>
+</Steps>
+
+## Updating the App
+
+### From App Stores
+
+- **Android**: Play Store automatically updates apps, or manually check for updates
+- **iOS**: App Store > Updates tab, or enable automatic updates
+
+### For Developers
+
+```bash
+# Pull latest changes
+git pull origin main
+
+# Update dependencies
+flutter pub get
+flutter pub upgrade
+
+# Rebuild
+flutter clean
+flutter build apk --release
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart Guide" icon="rocket" href="/quickstart">
+    Complete setup and add your first vehicle
+  </Card>
+  
+  <Card title="Authentication" icon="lock" href="/development/authentication">
+    Learn about account security and management
+  </Card>
+  
+  <Card title="Vehicle Management" icon="car" href="/features/vehicle-management">
+    Explore vehicle registration and profiles
+  </Card>
+  
+  <Card title="Development" icon="code" href="/development/environment-setup">
+    Technical documentation for developers
+  </Card>
+</CardGroup>

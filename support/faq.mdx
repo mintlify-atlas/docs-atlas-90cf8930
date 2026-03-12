@@ -1,0 +1,253 @@
+---
+title: 'Frequently Asked Questions'
+description: 'Common questions about My Auto Guide'
+icon: 'circle-question'
+---
+
+## General Questions
+
+<AccordionGroup>
+  <Accordion title="What is My Auto Guide?">
+    My Auto Guide is a comprehensive vehicle maintenance and navigation app designed to help you track your vehicle's maintenance schedules, store important documents, and navigate to your destinations. The app supports both motorcycles and cars, with specific features for maintenance tracking based on your vehicle type.
+  </Accordion>
+
+  <Accordion title="Do I need an account to use My Auto Guide?">
+    Yes, you need to create an account to use My Auto Guide. The app uses Supabase authentication to securely store your vehicle data and documents in the cloud. This allows you to access your information from any device.
+
+    After creating an account, you'll receive a confirmation email. Make sure to verify your email address before logging in.
+  </Accordion>
+
+  <Accordion title="How many vehicles can I add?">
+    You can add as many vehicles as you need to your account. Each vehicle is tracked separately with its own maintenance schedules, documents, and kilometrage. Simply use the "Add Vehicle" option to register additional motorcycles or cars.
+  </Accordion>
+
+  <Accordion title="Is my data secure?">
+    Yes. My Auto Guide uses Supabase for secure cloud storage with industry-standard encryption. Your vehicle documents are stored in Supabase Storage with signed URLs that expire after one hour for enhanced security. Only you can access your data when logged into your account.
+  </Accordion>
+
+  <Accordion title="Can I use the app offline?">
+    Some features require an internet connection:
+    - **Works Offline**: Viewing previously loaded vehicle information
+    - **Requires Internet**: 
+      - Login and registration
+      - Uploading/downloading documents
+      - GPS navigation and route planning
+      - RUNT vehicle verification
+      - Syncing maintenance data
+
+    <Note>Make sure to sync your data while connected to ensure you have the latest information available.</Note>
+  </Accordion>
+</AccordionGroup>
+
+## Vehicle Management
+
+<AccordionGroup>
+  <Accordion title="What maintenance items does the app track?">
+    My Auto Guide tracks five essential maintenance items with automatic reminders:
+
+    **For Motorcycles:**
+    - **Chain Lubrication**: Every 15 days
+    - **Air Filter**: Every 90 days
+    - **Oil Change**: Every 25 days
+    - **SOAT** (Mandatory Insurance): Every 365 days
+    - **Technical Inspection**: Every 365 days
+
+    Each item shows a visual indicator (green, yellow, or red) based on its remaining life, and you'll receive notifications when maintenance is due.
+  </Accordion>
+
+  <Accordion title="How do I update maintenance dates?">
+    1. From the main dashboard, tap **"Parametrización mantenimientos"** (Maintenance Configuration)
+    2. Select the maintenance item you want to update
+    3. Choose the date when you last performed that maintenance
+    4. Tap **"Guardar y calcular"** (Save and Calculate)
+
+    The app will automatically calculate when the next service is due and update your dashboard indicators.
+  </Accordion>
+
+  <Accordion title="How does kilometrage tracking work?">
+    The app tracks your vehicle's kilometrage in two ways:
+
+    1. **Manual Updates**: Enter your current kilometrage when adding a vehicle or updating maintenance
+    2. **GPS Navigation**: When you use the Routes feature, the app automatically adds the distance traveled to your vehicle's kilometrage
+
+    Your total kilometrage is displayed on the main dashboard and is used to track maintenance intervals.
+  </Accordion>
+
+  <Accordion title="Can I switch between vehicles?">
+    Currently, the app displays one vehicle at a time. To switch vehicles, you'll need to log out and select a different vehicle when logging back in. If you only have one vehicle registered, you'll automatically see that vehicle's dashboard.
+
+    <Note>Future updates may include a vehicle switcher in the app menu.</Note>
+  </Accordion>
+</AccordionGroup>
+
+## Documents & Storage
+
+<AccordionGroup>
+  <Accordion title="What documents can I store?">
+    You can store digital copies of these vehicle documents:
+    - **SOAT** (Mandatory Insurance)
+    - **Tecnomecánica** (Technical Inspection Certificate)
+    - **Seguro** (Additional Insurance)
+    - **Tarjeta de Propiedad** (Vehicle Registration Card)
+
+    Each document type can have multiple files (photos or PDFs).
+  </Accordion>
+
+  <Accordion title="What file formats are supported?">
+    My Auto Guide accepts the following file formats for documents:
+    - **Images**: JPG, JPEG, PNG, WEBP, HEIC, GIF
+    - **Documents**: PDF
+
+    You can upload files from your device's camera, photo gallery, or file manager.
+  </Accordion>
+
+  <Accordion title="How do I upload a document?">
+    1. From the main dashboard, tap on any document card (SOAT, Tecno, Seguro, or T. Propied)
+    2. Tap the **"Agregar archivo"** (Add File) button
+    3. Select a file from your device
+    4. Wait for the upload to complete
+
+    Your document will appear in the document manager and as a thumbnail on the main dashboard.
+  </Accordion>
+
+  <Accordion title="How do I view or delete documents?">
+    **To View:**
+    - Tap on a document card to open the document manager
+    - Tap any file thumbnail to view it in full screen
+    - Long-press a file to open it in an external app
+
+    **To Delete:**
+    - Open the document manager for that document type
+    - Tap the trash icon on the file you want to remove
+    - Confirm the deletion
+
+    <Warning>Deleted files cannot be recovered. Make sure you have a backup before deleting important documents.</Warning>
+  </Accordion>
+
+  <Accordion title="Is there a storage limit?">
+    Storage limits depend on your Supabase project configuration. The app uses Supabase Storage, which offers generous free tier limits. If you upload many high-resolution photos or large PDFs, you may eventually need to upgrade your storage plan.
+  </Accordion>
+</AccordionGroup>
+
+## Navigation & GPS
+
+<AccordionGroup>
+  <Accordion title="How does GPS navigation work?">
+    My Auto Guide includes a built-in GPS navigation feature using free, open-source mapping technology:
+    - **Maps**: OpenStreetMap with high-quality CartoDB tiles
+    - **Routing**: OSRM (Open Source Routing Machine) for optimal routes
+    - **Tracking**: Real-time GPS tracking with distance calculation
+
+    Simply search for a destination, and the app will calculate the best route and guide you there.
+  </Accordion>
+
+  <Accordion title="What is Free Tracking mode?">
+    Free Tracking mode allows you to track your journey without setting a specific destination. When you tap **"Iniciar Recorrido Libre"** (Start Free Journey), the app will:
+    - Follow your GPS location in real-time
+    - Track the distance you travel
+    - Automatically add the distance to your vehicle's kilometrage
+
+    This is useful for tracking local trips where you don't need turn-by-turn directions.
+  </Accordion>
+
+  <Accordion title="Does the navigation update my kilometrage automatically?">
+    Yes! When you complete a navigation session (either by reaching your destination or manually ending the trip), the app automatically adds the distance traveled to your vehicle's total kilometrage in the database.
+
+    You'll see a confirmation dialog showing:
+    - Distance traveled during the trip
+    - Your vehicle's updated total kilometrage
+  </Accordion>
+
+  <Accordion title="Why does navigation require location permissions?">
+    GPS navigation requires location permissions to:
+    - Show your current position on the map
+    - Calculate routes from your location to destinations
+    - Track your movement during navigation
+    - Calculate accurate distances traveled
+
+    See the [Permissions](/support/permissions) page for details on how to enable location access.
+  </Accordion>
+</AccordionGroup>
+
+## Notifications & Alerts
+
+<AccordionGroup>
+  <Accordion title="When will I receive maintenance notifications?">
+    My Auto Guide sends notifications when:
+    - A maintenance item is due (on the scheduled date)
+    - A maintenance item becomes overdue
+
+    Notifications are scheduled locally on your device based on the maintenance dates you configure in "Parametrización mantenimientos."
+  </Accordion>
+
+  <Accordion title="How do I enable/disable notifications?">
+    **On Android:**
+    1. Go to Settings > Apps > My Auto Guide > Notifications
+    2. Toggle notifications on or off
+    3. You can customize notification channels for different types of alerts
+
+    **On iOS:**
+    1. Go to Settings > My Auto Guide > Notifications
+    2. Toggle "Allow Notifications" on or off
+    3. Customize alert style, sounds, and badges
+
+    <Note>Disabling notifications means you won't receive automatic reminders for maintenance. Make sure to check your dashboard regularly.</Note>
+  </Accordion>
+
+  <Accordion title="I'm not receiving notifications. What should I do?">
+    If you're not receiving maintenance notifications:
+
+    1. **Check notification permissions** in your device settings (see above)
+    2. **Verify your maintenance dates** are set in "Parametrización mantenimientos"
+    3. **Ensure Battery Optimization is disabled** for the app (Android only):
+       - Go to Settings > Battery > Battery Optimization
+       - Find My Auto Guide and set it to "Not optimized"
+    4. **Restart the app** to reinitialize notifications
+
+    If problems persist, see the [Troubleshooting](/support/troubleshooting) page.
+  </Accordion>
+</AccordionGroup>
+
+## Account & Security
+
+<AccordionGroup>
+  <Accordion title="How do I reset my password?">
+    On the login screen:
+    1. Enter your email address
+    2. Tap **"Recuperar contraseña"** (Recover Password)
+    3. Check your email for a password reset link
+    4. Follow the link to create a new password
+
+    If you don't receive the email within a few minutes, check your spam folder.
+  </Accordion>
+
+  <Accordion title="Can I change my email address?">
+    Currently, email address changes must be done through your Supabase project dashboard. Contact support for assistance with changing your account email.
+  </Accordion>
+
+  <Accordion title="How do I delete my account?">
+    To delete your account and all associated data:
+    1. Contact support at support@myautoguide.com
+    2. Provide your registered email address
+    3. Your account and all data will be permanently deleted within 30 days
+
+    <Warning>Account deletion is permanent and cannot be undone. All your vehicle data, documents, and maintenance history will be lost.</Warning>
+  </Accordion>
+
+  <Accordion title="What happens if I delete a vehicle?">
+    When you delete a vehicle from the app:
+    - All maintenance data for that vehicle is removed
+    - All documents stored for that vehicle are deleted from cloud storage
+    - The vehicle cannot be recovered
+
+    If it's your only vehicle, you'll be taken to the "Add Vehicle" screen to register a new one.
+  </Accordion>
+</AccordionGroup>
+
+## Need More Help?
+
+If your question isn't answered here, check out:
+- [Troubleshooting Guide](/support/troubleshooting) - Solutions to common issues
+- [Permissions Guide](/support/permissions) - Understanding app permissions
+
+Still need help? Contact our support team at support@myautoguide.com

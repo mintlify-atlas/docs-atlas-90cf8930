@@ -1,0 +1,174 @@
+---
+title: Maintenance Configuration
+description: Set up maintenance schedules and track service intervals
+---
+
+# Maintenance Configuration
+
+My Auto Guide helps you stay on top of your vehicle maintenance by tracking service intervals and notifying you when maintenance is due. This guide explains how to configure your maintenance schedules.
+
+## Understanding Maintenance Intervals
+
+The app tracks five key maintenance items, each with its own interval:
+
+| Maintenance Item | Interval | Critical? |
+|-----------------|----------|----------|
+| Chain Lubrication (Lubricación de cadena) | Every 15 days | Yes |
+| Air Filter (Filtro de aire) | Every 90 days | Yes |
+| Oil Change (Cambio de aceite) | Every 25 days | Critical |
+| SOAT (Insurance) | Every 365 days (1 year) | Legal requirement |
+| Tecnomecánica (Technical inspection) | Every 365 days (1 year) | Legal requirement |
+
+<Warning>
+Maintaining accurate service dates is essential for vehicle safety and legal compliance. Expired SOAT or Tecnomecánica can result in fines.
+</Warning>
+
+## Configuring Maintenance Dates
+
+<Steps>
+
+### Step 1: Access Maintenance Configuration
+
+From your vehicle dashboard:
+1. Scroll to the **"Herramientas"** (Tools) section
+2. Tap on **"Parametrización mantenimientos"**
+3. The maintenance configuration screen will open
+
+### Step 2: Set Last Service Date for Chain Lubrication
+
+1. Locate **"Última lubricación de cadena"**
+2. Tap the **"Elegir"** (Choose) button
+3. A date picker will appear
+4. Select the date when you last lubricated your chain
+5. The date will appear in YYYY-MM-DD format
+
+<Tip>
+If you're not sure of the exact date, choose the most recent date you remember performing the service. It's better to be conservative with maintenance schedules.
+</Tip>
+
+### Step 3: Set Air Filter Maintenance Date
+
+1. Find **"Último mantenimiento de filtro de aire"**
+2. Tap **"Elegir"**
+3. Select the date of your last air filter service
+4. This includes cleaning or replacement
+
+### Step 4: Set Oil Change Date
+
+1. Locate **"Último cambio de aceite"**
+2. Tap **"Elegir"**
+3. Select when you last changed your engine oil
+4. This is one of the most critical maintenance items
+
+<Note>
+The oil change interval (25 days) is conservative. Adjust based on your manufacturer's recommendations and riding conditions.
+</Note>
+
+### Step 5: Set SOAT Date
+
+1. Find **"Último SOAT"**
+2. Tap **"Elegir"**
+3. Select the issue date of your current SOAT insurance
+4. This automatically calculates the expiration date (1 year later)
+
+### Step 6: Set Tecnomecánica Date
+
+1. Locate **"Última Técnico-Mecánica"**
+2. Tap **"Elegir"**
+3. Select the date of your last technical inspection
+4. The app will calculate when the next inspection is due
+
+### Step 7: Save and Calculate
+
+Once all dates are configured:
+1. Tap the **"Guardar y calcular"** (Save and Calculate) button
+2. The app will:
+   - Save all dates to your vehicle record
+   - Calculate remaining time for each maintenance item
+   - Set up automatic notifications
+   - Return you to the dashboard with updated indicators
+
+</Steps>
+
+## How the App Calculates Remaining Time
+
+The app uses a simple but effective calculation:
+
+1. **Days Elapsed** = Current Date - Last Service Date
+2. **Remaining Percentage** = 1 - (Days Elapsed / Interval Days)
+3. **Status** = Based on percentage remaining
+
+### Color Indicators
+
+The dashboard displays circular progress indicators with colors:
+
+- **Green** (&gt;50% remaining): Service is current, no action needed
+- **Yellow** (25-50% remaining): Service due soon, plan ahead
+- **Red** (&lt;25% remaining): Service due very soon, schedule immediately
+- **Red (pulsing)**: Service is OVERDUE, requires immediate attention
+
+## Notification System
+
+After saving your maintenance configuration, the app automatically:
+
+1. **Schedules notifications** for each maintenance item
+2. **Sends reminders** when service is approaching
+3. **Alerts immediately** if any service is already overdue
+4. **Recalculates** each time you update dates
+
+<Warning>
+If you see a red pulsing indicator or receive an overdue notification, prioritize that maintenance immediately. Operating with overdue maintenance can damage your vehicle or violate legal requirements.
+</Warning>
+
+## Updating Maintenance Records
+
+After completing any maintenance service:
+
+1. Return to the Maintenance Configuration screen
+2. Update only the service you completed
+3. Save and recalculate
+4. The indicators will refresh to show 100% for that item
+
+<Tip>
+Set a reminder on your phone to update the app immediately after each service. This ensures your tracking stays accurate.
+</Tip>
+
+## Viewing Maintenance Status
+
+Your main dashboard displays:
+
+- **Large indicators** for SOAT and Tecnomecánica (legal requirements)
+- **Small indicators** for routine maintenance (chain, filter, oil)
+- **Percentage values** showing time remaining
+- **Color coding** for quick visual assessment
+
+## Best Practices
+
+### Regular Updates
+- Update dates immediately after each service
+- Check indicators weekly to stay aware of upcoming maintenance
+- Don't ignore yellow warnings - they give you time to plan
+
+### Service Documentation
+- Keep physical receipts for all services
+- Upload service documents to the app (see [Uploading Documents](/guides/uploading-documents))
+- Note the mileage when each service is performed
+
+### Proactive Planning
+- When an indicator turns yellow, schedule your service
+- Don't wait until it turns red
+- For legal requirements (SOAT, Tecnomecánica), schedule renewals 2-3 weeks early
+
+## Troubleshooting
+
+**Notifications not appearing?**
+Ensure notifications are enabled in your device settings for My Auto Guide.
+
+**Wrong dates entered?**
+Simply return to Maintenance Configuration and update the incorrect date. The app will recalculate immediately.
+
+**Indicator shows red but service is current?**
+Verify the date entered is correct. The app may have saved an older date than intended.
+
+**Can't select future dates?**
+The date picker only allows past and current dates, as you can only configure maintenance that has already been performed.

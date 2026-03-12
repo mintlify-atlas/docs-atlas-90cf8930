@@ -1,0 +1,597 @@
+---
+title: Notifications Setup
+description: Complete guide to configuring and scheduling local notifications for maintenance reminders in My Auto Guide
+---
+
+## Overview
+
+My Auto Guide uses **local notifications** to alert users when vehicle maintenance is due. The notification system is built with:
+
+- **flutter_local_notifications**: Cross-platform notification plugin
+- **timezone**: Schedule notifications at specific dates/times
+- **Platform-specific configuration**: Android, iOS, Linux, and macOS support
+
+Notifications are scheduled when:
+- Maintenance dates are updated
+- A maintenance item is overdue
+- The app detects expiring documents (SOAT, technical inspection)
+
+---
+
+## Dependencies
+
+Add these packages to `pubspec.yaml`:
+
+```yaml
+dependencies:
+  flutter_local_notifications: ^17.0.0
+  timezone: ^0.9.0
+```
+
+---
+
+## Initial Setup
+
+### Global Plugin Instance
+
+Create a global instance accessible throughout the app:
+
+```dart
+// lib/main.dart:30-31
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+```
+
+### Initialize in main()
+
+```dart
+// lib/main.dart:41-76
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase...
+  await Supabase.initialize(...);
+
+  // ── INITIALIZE TIMEZONES ─────────────────────────────────
+  tz.initializeTimeZones();
+
+  // ── CONFIGURE NOTIFICATIONS ──────────────────────────────
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+      
+  const LinuxInitializationSettings initializationSettingsLinux =
+      LinuxInitializationSettings(defaultActionName: 'Abrir notificación');
+      
+  const DarwinInitializationSettings initializationSettingsDarwin =
+      DarwinInitializationSettings();
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+    linux: initializationSettingsLinux,
+    iOS: initializationSettingsDarwin,
+    macOS: initializationSettingsDarwin,
+  );
+
+  // Initialize plugin (skip on web - not supported)
+  if (!kIsWeb) {
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  runApp(const MyApp());
+}
+```
+
+---
+
+## Platform Configuration
+
+### Android Setup
+
+#### 1. AndroidManifest.xml Permissions
+
+Add notification permissions to `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Notification permissions -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Android 13+ (API 33+) requires explicit notification permission -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <application>
+        <!-- Add receiver for scheduled notifications -->
+        <receiver android:exported="false" 
+                  android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:exported="false" 
+                  android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
+```
+
+#### 2. Notification Icon
+
+Place your notification icon at:
+```
+android/app/src/main/res/mipmap-*/ic_launcher.png
+```
+
+The icon is referenced in initialization:
+```dart
+AndroidInitializationSettings('@mipmap/ic_launcher')
+```
+
+#### 3. Android Notification Channel
+
+Define the notification channel:
+
+```dart
+// lib/inicio_app.dart:660-667
+const AndroidNotificationDetails androidPlatformChannelSpecifics =
+    AndroidNotificationDetails(
+  'mantenimiento_channel',        // Channel ID
+  'Mantenimientos',               // Channel name
+  channelDescription: 'Notificaciones de mantenimientos vencidos',
+  importance: Importance.max,
+  priority: Priority.high,
+  ticker: 'ticker',
+);
+```
+
+### iOS Setup
+
+#### 1. Request Permissions
+
+iOS requires explicit permission request at runtime:
+
+```dart
+await flutterLocalNotificationsPlugin
+    .resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>()
+    ?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+```
+
+#### 2. Info.plist Configuration
+
+No additional configuration needed - permissions are handled at runtime.
+
+### Linux Setup
+
+```dart
+const LinuxInitializationSettings initializationSettingsLinux =
+    LinuxInitializationSettings(
+  defaultActionName: 'Abrir notificación',
+);
+```
+
+### macOS Setup
+
+Same as iOS:
+
+```dart
+const DarwinInitializationSettings initializationSettingsDarwin =
+    DarwinInitializationSettings();
+```
+
+---
+
+## Timezone Configuration
+
+Scheduled notifications require timezone support:
+
+```dart
+// lib/inicio_app.dart:644-648
+Future<void> _initTimezone() async {
+  tz.initializeTimeZones();
+  final String timeZoneName = tz.local.name;
+  tz.setLocalLocation(tz.getLocation(timeZoneName));
+}
+```
+
+**Key Points:**
+- `tz.initializeTimeZones()` loads all timezone data
+- `tz.local.name` gets the device's timezone (e.g., "America/Bogota")
+- `tz.setLocalLocation()` sets the app's timezone context
+
+---
+
+## Showing Notifications
+
+### Immediate Notification
+
+Show a notification right away:
+
+```dart
+// lib/inicio_app.dart:658-678
+Future<void> _showMaintenanceNotification(String tipo) async {
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'mantenimiento_channel',
+    'Mantenimientos',
+    channelDescription: 'Notificaciones de mantenimientos vencidos',
+    importance: Importance.max,
+    priority: Priority.high,
+    ticker: 'ticker',
+  );
+  
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+  );
+  
+  await flutterLocalNotificationsPlugin.show(
+    0,                              // Notification ID
+    '¡Mantenimiento requerido!',   // Title
+    'Debes realizar el mantenimiento de $tipo.', // Body
+    platformChannelSpecifics,
+    payload: tipo,                  // Optional data
+  );
+}
+```
+
+**Parameters:**
+- `id`: Unique notification ID (reusing ID replaces existing notification)
+- `title`: Notification title
+- `body`: Notification message
+- `payload`: Optional string data (accessible when user taps notification)
+
+---
+
+## Scheduling Notifications
+
+### Schedule for Specific Date/Time
+
+```dart
+// lib/inicio_app.dart:680-707
+Future<void> _scheduleMaintenanceNotification(
+  DateTime fechaVencimiento,
+  String tipo,
+) async {
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'mantenimiento_channel',
+    'Mantenimientos',
+    channelDescription: 'Notificaciones de mantenimientos vencidos',
+    importance: Importance.max,
+    priority: Priority.high,
+    ticker: 'ticker',
+  );
+  
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+  );
+  
+  await flutterLocalNotificationsPlugin.zonedSchedule(
+    tipo.hashCode,                  // Unique ID based on maintenance type
+    '¡Mantenimiento requerido!',
+    'Debes realizar el mantenimiento de $tipo.',
+    tz.TZDateTime.from(fechaVencimiento, tz.local), // Convert to TZDateTime
+    platformChannelSpecifics,
+    androidAllowWhileIdle: true,    // Show even in battery saver mode
+    uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime,
+    matchDateTimeComponents: DateTimeComponents.dateAndTime,
+  );
+}
+```
+
+**Key Points:**
+- Use `tipo.hashCode` as ID to ensure each maintenance type has one notification
+- Convert `DateTime` to `TZDateTime` for timezone-aware scheduling
+- `androidAllowWhileIdle: true` ensures notification shows even in Doze mode
+
+---
+
+## Notification Scheduling Logic
+
+Maintenance notifications are scheduled when the user views the vehicle dashboard:
+
+```dart
+// lib/inicio_app.dart:719-744
+if (!_notificacionesProcesadas &&
+    (_lastCadena != null ||
+        _lastFiltro != null ||
+        _lastAceite != null ||
+        _lastSoat != null ||
+        _lastTecno != null)) {
+  _notificacionesProcesadas = true;
+  
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    void checkAndSchedule(String tipo, DateTime? last, int days) async {
+      if (last == null) return;
+      
+      // Calculate expiration date
+      final vencimiento = last.add(Duration(days: days));
+      
+      // Cancel existing notification
+      await flutterLocalNotificationsPlugin.cancel(tipo.hashCode);
+      
+      // Schedule or show immediately
+      if (vencimiento.isAfter(DateTime.now())) {
+        _scheduleMaintenanceNotification(vencimiento, tipo);
+      } else {
+        _showMaintenanceNotification(tipo);
+      }
+    }
+
+    checkAndSchedule('lubricación de cadena', _lastCadena, 15);
+    checkAndSchedule('filtro de aire', _lastFiltro, 90);
+    checkAndSchedule('cambio de aceite', _lastAceite, 25);
+    checkAndSchedule('SOAT', _lastSoat, 365);
+    checkAndSchedule('Tecnomecánica', _lastTecno, 365);
+  });
+}
+```
+
+**Maintenance Cycles:**
+- Chain lubrication: **15 days**
+- Air filter: **90 days**
+- Oil change: **25 days**
+- SOAT (insurance): **365 days**
+- Technical inspection: **365 days**
+
+---
+
+## Cancelling Notifications
+
+### Cancel Specific Notification
+
+```dart
+await flutterLocalNotificationsPlugin.cancel(notificationId);
+```
+
+### Cancel All Notifications
+
+```dart
+await flutterLocalNotificationsPlugin.cancelAll();
+```
+
+---
+
+## Notification Interaction
+
+### Handle Notification Tap
+
+Define a callback when user taps a notification:
+
+```dart
+const InitializationSettings initializationSettings = InitializationSettings(
+  android: initializationSettingsAndroid,
+);
+
+await flutterLocalNotificationsPlugin.initialize(
+  initializationSettings,
+  onDidReceiveNotificationResponse: (NotificationResponse response) {
+    final payload = response.payload;
+    if (payload != null) {
+      // Navigate to relevant screen or show details
+      print('Notification tapped with payload: $payload');
+    }
+  },
+);
+```
+
+---
+
+## Notification States and UI
+
+The app displays maintenance status with visual indicators:
+
+```dart
+// lib/inicio_app.dart:126-130
+Color _colorFor(double v) {
+  if (v < 0.20) return Colors.red;      // < 20% remaining
+  if (v < 0.50) return Colors.amber;    // 20-50% remaining
+  return Colors.green;                   // > 50% remaining
+}
+```
+
+**Visual States:**
+- 🟢 **Green**: > 50% of cycle remaining
+- 🟡 **Amber**: 25-50% remaining
+- 🔴 **Red**: < 25% remaining
+- 🔴 **Flashing Red**: Overdue (notification triggered)
+
+---
+
+## Permission Handling (Android 13+)
+
+For Android 13+ (API 33), request notification permission explicitly:
+
+```dart
+import 'package:permission_handler/permission_handler.dart';
+
+Future<void> requestNotificationPermission() async {
+  if (Platform.isAndroid) {
+    final status = await Permission.notification.status;
+    if (status.isDenied) {
+      await Permission.notification.request();
+    }
+  }
+}
+```
+
+Add to `pubspec.yaml`:
+```yaml
+dependencies:
+  permission_handler: ^11.0.0
+```
+
+---
+
+## Best Practices
+
+### 1. Use Unique IDs for Different Notification Types
+
+```dart
+// Use hashCode of maintenance type as unique ID
+final notificationId = 'cambio de aceite'.hashCode;
+```
+
+### 2. Always Cancel Before Rescheduling
+
+```dart
+await flutterLocalNotificationsPlugin.cancel(notificationId);
+await flutterLocalNotificationsPlugin.zonedSchedule(...);
+```
+
+This prevents duplicate notifications.
+
+### 3. Test on Real Devices
+
+Notifications don't work reliably on emulators. Always test on physical devices.
+
+### 4. Handle Timezone Changes
+
+Reinitialize timezones when user changes device timezone:
+
+```dart
+tz.initializeTimeZones();
+tz.setLocalLocation(tz.getLocation(tz.local.name));
+```
+
+### 5. Respect Battery Optimization
+
+Use `androidAllowWhileIdle: true` for critical notifications, but don't abuse it:
+
+```dart
+androidAllowWhileIdle: true, // Only for important alerts
+```
+
+### 6. Provide Clear Notification Content
+
+```dart
+title: '¡Mantenimiento requerido!',
+body: 'Debes realizar el mantenimiento de lubricación de cadena.',
+```
+
+Be specific about what action is required.
+
+---
+
+## Debugging Notifications
+
+### Check Pending Notifications
+
+```dart
+final pendingNotifications = 
+    await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+
+for (final notification in pendingNotifications) {
+  print('ID: ${notification.id}, Title: ${notification.title}');
+}
+```
+
+### Test Notification Immediately
+
+```dart
+// Schedule for 5 seconds from now
+final scheduledDate = tz.TZDateTime.now(tz.local).add(Duration(seconds: 5));
+
+await flutterLocalNotificationsPlugin.zonedSchedule(
+  0,
+  'Test Notification',
+  'This is a test',
+  scheduledDate,
+  platformChannelSpecifics,
+  androidAllowWhileIdle: true,
+  uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+);
+```
+
+### Check Notification Channel (Android)
+
+```bash
+adb shell dumpsys notification_listener
+```
+
+---
+
+## Common Issues
+
+### Notifications Not Showing on Android
+
+**Possible causes:**
+1. Missing `POST_NOTIFICATIONS` permission (Android 13+)
+2. Battery optimization killing background tasks
+3. Notification channel not created properly
+4. Invalid timezone configuration
+
+**Solution:**
+```dart
+// Request permission explicitly
+if (Platform.isAndroid) {
+  await Permission.notification.request();
+}
+
+// Ensure channel is created
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'mantenimiento_channel',
+  'Mantenimientos',
+  description: 'Notificaciones de mantenimientos vencidos',
+  importance: Importance.max,
+);
+
+await flutterLocalNotificationsPlugin
+    .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()
+    ?.createNotificationChannel(channel);
+```
+
+### Notifications Showing at Wrong Time
+
+**Cause:** Incorrect timezone configuration
+
+**Solution:**
+```dart
+tz.initializeTimeZones();
+final location = tz.getLocation('America/Bogota'); // Use specific timezone
+tz.setLocalLocation(location);
+```
+
+### Scheduled Notifications Lost After Reboot
+
+**Cause:** Android doesn't persist scheduled notifications after reboot
+
+**Solution:** Use the `RECEIVE_BOOT_COMPLETED` receiver and reschedule notifications on boot.
+
+---
+
+## Testing Checklist
+
+- [ ] Notifications show immediately when overdue
+- [ ] Scheduled notifications appear at correct time
+- [ ] Notifications persist after app is closed
+- [ ] Tapping notification opens app correctly
+- [ ] Multiple notification types don't interfere
+- [ ] Notifications respect Do Not Disturb mode
+- [ ] Works on Android 13+ with permission request
+- [ ] iOS permissions are requested and respected
+
+---
+
+## Related Files
+
+- **Initialization**: `lib/main.dart:41-76`
+- **Notification Setup**: `lib/inicio_app.dart:636-656`
+- **Scheduling Logic**: `lib/inicio_app.dart:680-707`
+- **Trigger Logic**: `lib/inicio_app.dart:719-744`
+
+---
+
+## Additional Resources
+
+- [flutter_local_notifications Plugin](https://pub.dev/packages/flutter_local_notifications)
+- [timezone Package](https://pub.dev/packages/timezone)
+- [Android Notification Documentation](https://developer.android.com/develop/ui/views/notifications)
+- [iOS Notification Guide](https://developer.apple.com/documentation/usernotifications)

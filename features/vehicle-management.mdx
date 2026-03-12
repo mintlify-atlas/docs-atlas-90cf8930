@@ -1,0 +1,105 @@
+---
+title: 'Vehicle Management'
+description: 'Register and manage your cars and motorcycles with ease'
+icon: 'car'
+---
+
+My Auto Guide allows you to register and track multiple vehicles in one place. Whether you ride a motorcycle or drive a car, the app provides a comprehensive catalog of popular brands and models to help you get started quickly.
+
+## Supported Vehicle Types
+
+<CardGroup cols={2}>
+  <Card title="Motorcycles" icon="motorcycle">
+    Add motorcycles from popular brands like Yamaha, Suzuki, BMW, Kawasaki, Bajaj, Hero, AKT, and KTM
+  </Card>
+  <Card title="Cars" icon="car">
+    Register cars from brands including Toyota, Mazda, and Chevrolet
+  </Card>
+</CardGroup>
+
+## How to Add a Vehicle
+
+<Steps>
+  <Step title="Choose Vehicle Type">
+    Select whether you're adding a car or motorcycle using the vertical tabs on the left side of the screen.
+  </Step>
+  
+  <Step title="Select Brand">
+    Browse through the horizontal brand selector displaying logos of supported manufacturers. Each brand has its own distinctive color theme:
+    - **Yamaha**: Blue
+    - **Suzuki**: Red
+    - **BMW**: Dark Gray
+    - **Kawasaki**: Green
+    - **Toyota**: Red
+    - **Chevrolet**: Yellow
+  </Step>
+  
+  <Step title="Pick Your Model">
+    Use the image carousel to browse through available models for your selected brand. Navigate using the left and right arrow buttons to find your exact vehicle.
+  </Step>
+  
+  <Step title="Enter Vehicle Details">
+    Fill in the following information:
+    - **Current Mileage**: How many kilometers your vehicle has traveled
+    - **Year**: The model year of your vehicle
+    - **Nickname**: A custom name for easy identification (e.g., "Demon", "My Ride")
+  </Step>
+  
+  <Step title="Create Your Vehicle">
+    Tap the "Create Vehicle" button to save your vehicle to the database. You'll be automatically taken to your vehicle dashboard.
+  </Step>
+</Steps>
+
+## Vehicle Dashboard
+
+Once registered, your vehicle appears on the main dashboard with:
+
+- **Vehicle image** from the catalog
+- **Brand logo** displayed in the corner
+- **Model and nickname** prominently shown
+- **Current mileage** tracked in real-time
+- Quick access to all maintenance and document features
+
+<Info>
+The vehicle catalog includes high-quality images and detailed specifications for dozens of popular models in each brand category.
+</Info>
+
+## Motorcycle Brands Catalog
+
+The app includes extensive motorcycle catalogs:
+
+- **Yamaha**: MT 15, R15, FZ 25, Crypton FI, FZ 2.0, N-MAX, XTZ 150
+- **Suzuki**: Gixxer 150 FI, Gixxer SF 150 FI
+- **BMW**: G 310 R, G 310 GS, F 900 R
+- **Kawasaki**: Versys 650, Ninja 650, Ninja 400, Z 400
+- **Bajaj**: Boxer series, Discover 125, Dominar 250/400, Pulsar N/NS/P/RS series
+- **Hero**: Hunk series, Eco series, Ignitor, Splendor, X Pulse models
+- **AKT**: CR 250R, CR4 150/200, NKD, MAWI
+- **KTM**: Duke series (200/250/390/990), Super Duke 1390, Adventure series
+
+## Car Brands Catalog
+
+Supported car models include:
+
+- **Toyota**: Corolla, Hilux, Yaris, Yaris Cross, Tundra, Land Cruiser 300, Fortuner, Corolla Cross
+- **Mazda**: Mazda 2 (Hatchback/Sedan), Mazda 3 Sedan
+- **Chevrolet**: Onix series, Tracker RS, Blazer (EV/RS), Equinox RS, Traverse RS, Montana, Colorado RS, Silverado
+
+<Tip>
+You can register multiple vehicles and switch between them easily from the main dashboard.
+</Tip>
+
+## Technical Details
+
+Vehicle data is stored in the Supabase `vehiculos` table with the following fields:
+
+- `user_id`: Links vehicle to your account
+- `marca`: Vehicle brand
+- `modelo`: Specific model name
+- `apodo`: Your custom nickname
+- `kms`: Current mileage
+- `image_path`: Path to the vehicle image asset
+
+<Note>
+All vehicle information is securely stored in the cloud and syncs across your devices when you're logged in.
+</Note>

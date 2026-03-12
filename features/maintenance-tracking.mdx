@@ -1,0 +1,135 @@
+---
+title: 'Maintenance Tracking'
+description: 'Never miss a maintenance deadline with visual indicators and smart reminders'
+icon: 'wrench'
+---
+
+My Auto Guide features an intelligent maintenance tracking system that calculates when your vehicle needs service based on the last maintenance date. The system uses circular progress indicators with color-coded alerts to keep you informed at a glance.
+
+## Maintenance Types
+
+The app tracks five critical maintenance items, each with its own service interval:
+
+<CardGroup cols={2}>
+  <Card title="Chain Lubrication" icon="link">
+    **Every 15 days** - Essential for motorcycle chain maintenance
+  </Card>
+  <Card title="Air Filter" icon="filter">
+    **Every 90 days** - Keep your engine breathing clean air
+  </Card>
+  <Card title="Oil Change" icon="oil-can">
+    **Every 25 days** - Regular oil changes extend engine life
+  </Card>
+  <Card title="SOAT (Insurance)" icon="shield-halved">
+    **Every 365 days** - Mandatory vehicle insurance
+  </Card>
+  <Card title="Technomechanical Inspection" icon="car-burst">
+    **Every 365 days** - Required safety inspection
+  </Card>
+</CardGroup>
+
+## Visual Indicators
+
+Each maintenance item displays a **circular progress indicator** showing the percentage of service life remaining:
+
+### Color Coding System
+
+- 🟢 **Green (&gt;50%)**: Maintenance is current, no action needed
+- 🟡 **Yellow (25-50%)**: Service due soon, plan accordingly
+- 🔴 **Red (&lt;25%)**: Service overdue, immediate attention required
+- 🔴 **Red Pulsing**: Maintenance deadline has passed
+
+<Info>
+The color-coded system lets you assess your vehicle's maintenance status instantly without reading detailed information.
+</Info>
+
+## How It Works
+
+<Steps>
+  <Step title="Set Last Maintenance Dates">
+    Navigate to "Parametrización de mantenimientos" from the Tools section on your vehicle dashboard.
+  </Step>
+  
+  <Step title="Select Dates for Each Service">
+    Use the date picker to enter when each maintenance item was last completed:
+    - Tap the "Elegir" (Choose) button next to each maintenance type
+    - Select the date from the calendar picker
+    - Repeat for all maintenance items you want to track
+  </Step>
+  
+  <Step title="Save and Calculate">
+    Tap "Guardar y calcular" (Save and Calculate) to update your maintenance schedule. The app will:
+    - Calculate remaining service life as a percentage
+    - Determine if any maintenance is overdue
+    - Schedule local notifications for upcoming deadlines
+  </Step>
+  
+  <Step title="Monitor Your Dashboard">
+    Return to the main dashboard where circular indicators now display:
+    - Current percentage for each maintenance item
+    - Color-coded status (green/yellow/red)
+    - Visual alerts for items requiring attention
+  </Step>
+</Steps>
+
+## Smart Notifications
+
+The app automatically schedules **local notifications** when maintenance is due:
+
+- Notifications appear even when the app is closed
+- Alerts are sent on the exact due date for each service
+- If maintenance is already overdue, you receive an immediate notification
+- Each maintenance type has its own notification channel
+
+<Tip>
+Set all your maintenance dates at once when you first register your vehicle to get the most accurate tracking from day one.
+</Tip>
+
+## Dashboard Display
+
+The main dashboard shows maintenance indicators in two sections:
+
+### Top Section (Documents Area)
+- SOAT indicator
+- Technomechanical inspection indicator
+
+### Indicators Section
+- Chain lubrication
+- Air filter
+- Oil change
+
+Each indicator tile displays:
+- The maintenance name
+- A circular progress ring with color coding
+- The exact percentage remaining (e.g., "75%")
+
+## Calculation Formula
+
+The app uses a straightforward calculation:
+
+```
+Days Elapsed = Current Date - Last Maintenance Date
+Percentage Remaining = 1 - (Days Elapsed / Service Interval)
+```
+
+For example, if you changed oil 10 days ago (25-day interval):
+- Days Elapsed: 10
+- Percentage Remaining: 1 - (10/25) = 60%
+- Status: Green ✅
+
+<Note>
+The app stores maintenance dates in the `vehiculos` table with fields like `last_cadena`, `last_filtro`, `last_aceite`, `last_soat`, and `last_tecno`.
+</Note>
+
+## Overdue Maintenance Alerts
+
+When you save maintenance dates, if any item is already overdue, you'll see:
+
+- A red snackbar notification at the bottom of the screen
+- Message: "Hay mantenimientos vencidos, realizar cuanto antes" (Overdue maintenance detected, complete as soon as possible)
+- The indicator will pulse red on the dashboard
+- An immediate push notification reminding you to service your vehicle
+
+<Warning>
+Never ignore red indicators - overdue maintenance can lead to vehicle damage, safety issues, or regulatory problems.
+</Warning>

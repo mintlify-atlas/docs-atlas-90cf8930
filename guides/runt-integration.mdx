@@ -1,0 +1,309 @@
+---
+title: RUNT Integration
+description: Access the National Vehicle Registry and automatically sync vehicle documents
+---
+
+# RUNT Integration
+
+My Auto Guide integrates directly with Colombia's RUNT (Registro Único Nacional de Tránsito) to help you check your vehicle's official records and automatically extract important document dates.
+
+## What is RUNT?
+
+The **Registro Único Nacional de Tránsito (RUNT)** is Colombia's national vehicle and driver registry. It maintains official records for:
+
+- Vehicle ownership and registration
+- SOAT (mandatory vehicle insurance) status
+- Revisión Técnico-Mecánica (technical inspection) certificates
+- Vehicle history and transactions
+- Traffic violations and fines
+
+<Note>
+RUNT is the authoritative source for vehicle information in Colombia. Data shown in RUNT is legally binding and used by authorities.
+</Note>
+
+## Why Use RUNT Integration?
+
+The RUNT integration in My Auto Guide provides several benefits:
+
+### Automatic Data Extraction
+- Pulls SOAT issue and expiration dates automatically
+- Extracts Tecnomecánica dates without manual entry
+- Reduces errors from manual date entry
+- Saves time when configuring maintenance reminders
+
+### Official Verification
+- Confirms your SOAT is valid and registered
+- Verifies your technical inspection is current
+- Checks against the national database
+- Provides peace of mind for legal compliance
+
+### Document Syncing
+- Updates your vehicle record with official dates
+- Automatically sets maintenance reminders
+- Keeps your app data synchronized with RUNT
+- Eliminates need to manually track expiration dates
+
+<Warning>
+You'll need your vehicle's license plate number (placa) and your national ID number (cédula) to use this feature. Keep these handy before starting.
+</Warning>
+
+## Accessing RUNT from the App
+
+<Steps>
+
+### Step 1: Open RUNT Consultation
+
+From your vehicle dashboard:
+1. Scroll to the **"Herramientas"** (Tools) section
+2. Locate the **"Consultar RUNT"** button
+3. Tap to open the RUNT consultation screen
+
+### Step 2: RUNT Website Loads
+
+The app opens an embedded web browser showing:
+- The official RUNT Consulta Ciudadana website
+- URL: `https://www.runt.com.co/consultaCiudadana/`
+- A loading indicator while the page loads
+- The full RUNT consultation interface
+
+<Note>
+The RUNT interface is embedded directly in the app using a secure WebView. You're accessing the real RUNT website, not a simulation.
+</Note>
+
+### Step 3: Auto-filled Form
+
+Once the page loads:
+- The **Placa** (license plate) field is automatically filled with your vehicle's plate number
+- The **Número de Documento** (ID number) field is auto-filled with your cédula
+- Both fields should appear populated within 1-2 seconds
+
+<Tip>
+If the fields don't auto-fill immediately, wait a few seconds for the page to fully load. The auto-fill script runs automatically.
+</Tip>
+
+### Step 4: Submit the Consultation
+
+1. Verify the auto-filled information is correct
+2. Tap the **"Consultar"** (Consult) button on the RUNT website
+3. Wait for RUNT to retrieve your vehicle's information (5-10 seconds)
+4. The results page appears with your vehicle details
+
+### Step 5: Extract Dates Automatically
+
+After the results appear:
+1. Scroll to the bottom of the screen
+2. Tap the blue **"Consultar Fechas SOAT y Tecno"** button
+3. The app automatically:
+   - Scans the RUNT page for SOAT table
+   - Extracts issue and expiration dates
+   - Scans for Tecnomecánica table
+   - Extracts technical inspection dates
+   - This process takes 5-20 seconds
+
+<Note>
+The app uses JavaScript to intelligently read the RUNT page tables. It looks for specific keywords like "FECHA EXPEDICIÓN" and "FECHA VENCIMIENTO" to find the correct dates.
+</Note>
+
+### Step 6: Review Extracted Data
+
+Once extraction completes:
+- A green success notification appears at the top
+- A card at the bottom shows the extracted information:
+  - SOAT issued: [date]
+  - SOAT expires: [date]
+  - Tecnomecánica issued: [date]
+  - Tecnomecánica expires: [date]
+
+- All dates are in the format displayed by RUNT
+
+### Step 7: Data Automatically Saved
+
+The app automatically:
+1. Saves the extracted dates to your vehicle record in the database
+2. Updates your SOAT and Tecnomecánica status
+3. Recalculates maintenance indicators
+4. Schedules expiration reminders
+
+<Tip>
+Return to your dashboard to see the updated SOAT and Tecnomecánica indicators with the official dates from RUNT.
+</Tip>
+
+</Steps>
+
+## Understanding the Extraction Process
+
+The RUNT integration uses advanced web scraping:
+
+### How It Works
+
+1. **Page Analysis** - The app analyzes the HTML structure of the RUNT results page
+2. **Table Detection** - Identifies tables containing "PÓLIZA SOAT" and "CERTIFICADO DE REVISIÓN TÉCNICO-MECÁNICA"
+3. **Row Scanning** - Reads each row in the relevant tables
+4. **Date Extraction** - Finds cells containing "FECHA EXPEDICIÓN" and "FECHA VENCIMIENTO"
+5. **Data Parsing** - Extracts the date values from adjacent cells
+6. **Validation** - Ensures dates are in valid format
+7. **Database Update** - Saves dates to your vehicle record
+
+### Retry Logic
+
+The extraction is resilient:
+- **Up to 10 retry attempts** if data isn't immediately available
+- **2-second intervals** between retries
+- **Waits for RUNT** to fully load tables
+- **Handles slow connections** gracefully
+
+<Note>
+If you see "searching..." for more than 20 seconds, the RUNT page may be loading slowly or have a different format than expected. Try refreshing the page.
+</Note>
+
+## Manual RUNT Navigation
+
+You can also use the embedded browser manually:
+
+### Exploring Your Vehicle Details
+
+The RUNT results page shows extensive information:
+- Vehicle make, model, and year
+- Engine and chassis numbers
+- Registration history
+- Current owner information
+- SOAT policy details (insurer, policy number)
+- Technical inspection details (CDA, certificate number)
+- Traffic violations
+- Restrictions or liens
+
+### Refreshing Data
+
+- Use the **refresh button** in the app bar to reload the page
+- Manually navigate within the RUNT site using the web interface
+- Use browser back/forward if needed (standard web navigation)
+
+### Sharing RUNT Information
+
+- Take screenshots of important information
+- The RUNT site may have its own print or export options
+- Use the extracted data saved in your app for reference
+
+## Troubleshooting RUNT Integration
+
+### RUNT Website Won't Load
+
+**Possible causes:**
+- No internet connection
+- RUNT website is down (check www.runt.com.co directly)
+- Firewall or network blocking access
+
+**Solutions:**
+- Check your internet connection
+- Try switching between Wi-Fi and mobile data
+- Wait a few minutes if RUNT servers are overloaded
+- Use the refresh button to retry
+
+### Auto-fill Not Working
+
+**Possible causes:**
+- Page hasn't fully loaded
+- RUNT changed their form field names
+- JavaScript blocked
+
+**Solutions:**
+- Wait 5-10 seconds after page load
+- Manually type your plate and cédula if auto-fill fails
+- Ensure JavaScript is enabled (it should be by default)
+
+### "No Data Found" or Empty Results
+
+**Possible causes:**
+- Vehicle not registered in RUNT (unlikely)
+- Incorrect plate number
+- Incorrect cédula
+- Vehicle registered under different owner
+
+**Solutions:**
+- Double-check your plate number is correct
+- Verify the cédula matches the registered owner
+- Ensure there are no spaces or typos in the input
+- Contact RUNT directly if issue persists
+
+### Date Extraction Returns Empty Dates
+
+**Possible causes:**
+- RUNT page hasn't fully loaded
+- Your SOAT or Tecnomecánica is expired/not registered
+- RUNT page layout changed
+
+**Solutions:**
+- Wait for the full RUNT results to display before extracting
+- Scroll through the page to ensure tables are visible
+- Try the extraction button again after 10 seconds
+- Manually note dates and enter them in Maintenance Configuration
+
+### Extracted Dates Look Wrong
+
+**Possible causes:**
+- Date format confusion (day/month vs month/day)
+- RUNT displaying dates in unexpected format
+- Extraction parsed wrong cell
+
+**Solutions:**
+- Verify dates against what's shown on screen
+- Manually correct dates in Maintenance Configuration if needed
+- Check the original document (physical SOAT/Tecno) to confirm
+
+## Privacy and Security
+
+### What Data is Accessed?
+
+The RUNT integration:
+- **Reads** public vehicle information available through RUNT's citizen portal
+- **Extracts** only date fields for SOAT and Tecnomecánica
+- **Saves** these dates to your private vehicle record
+- **Does NOT** store your cédula or transmit it anywhere except to RUNT
+
+### Data Security
+
+- All communication with RUNT uses **HTTPS encryption**
+- Your cédula is used only for the RUNT consultation
+- Extracted dates are stored securely in your private account
+- No personal data is shared with third parties
+
+<Warning>
+Never share your RUNT login credentials if prompted. The citizen consultation portal should NOT require a login - only plate and cédula. If asked for a password, you may be on a phishing site.
+</Warning>
+
+## Best Practices
+
+### When to Use RUNT Integration
+
+- **After renewing** SOAT or Tecnomecánica
+- **When first** setting up a vehicle in the app
+- **Quarterly** to verify your documents are current
+- **Before long trips** to ensure legal compliance
+
+### Keeping Data Current
+
+- Run RUNT consultation after each document renewal
+- The app doesn't auto-sync - you must manually trigger consultation
+- Combine with uploading document images for complete records
+- Set calendar reminders to check RUNT monthly
+
+### Alternative Data Entry
+
+If RUNT integration isn't working:
+- Manually enter dates in [Maintenance Configuration](/guides/maintenance-configuration)
+- Reference your physical SOAT and Tecnomecánica documents
+- The app works fully without RUNT - it's a convenience feature
+
+## Limitations
+
+Be aware of these limitations:
+
+- **Colombia-specific** - RUNT only covers Colombian vehicles
+- **Requires internet** - Cannot work offline
+- **RUNT uptime** - Dependent on government website availability
+- **Layout changes** - RUNT website updates may break extraction temporarily
+- **Public data only** - Can only access data available to all citizens
+
+<Note>
+The RUNT integration is a convenience feature. You can fully use My Auto Guide without it by manually entering your maintenance dates.
+</Note>

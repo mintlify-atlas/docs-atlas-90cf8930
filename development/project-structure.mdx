@@ -1,0 +1,317 @@
+---
+title: Project Structure
+description: Understanding the My Auto Guide codebase organization and key files
+---
+
+## Overview
+
+My Auto Guide is a Flutter application organized as a standard Flutter project with a focus on vehicle management. The codebase follows Flutter conventions with a single `lib/` directory containing all Dart source files.
+
+## Directory Structure
+
+### Root Directory
+
+```
+my_auto_guide/
+├── android/          # Android platform-specific configuration
+├── ios/              # iOS platform-specific configuration
+├── web/              # Web platform-specific configuration
+├── linux/            # Linux platform-specific configuration
+├── macos/            # macOS platform-specific configuration
+├── windows/          # Windows platform-specific configuration
+├── assets/           # Application assets (images, logos, etc.)
+├── lib/              # Main Dart source code
+├── test/             # Unit and widget tests
+├── pubspec.yaml      # Project dependencies and configuration
+└── README.md         # Project documentation
+```
+
+### Platform Directories
+
+The application supports multiple platforms:
+
+- **android/** - Android-specific build configuration, manifest, and resources
+- **ios/** - iOS-specific configuration, Info.plist, and Xcode project files
+- **web/** - Web platform configuration and index.html
+- **linux/**, **macos/**, **windows/** - Desktop platform configurations
+
+### Assets Directory Structure
+
+The `assets/` directory is organized by asset type:
+
+```
+assets/
+├── logos/              # Brand logos (Yamaha, Suzuki, BMW, etc.)
+│   ├── yamaha_logo.png
+│   ├── suzuki_logo.png
+│   ├── bmw_logo.png
+│   └── ...
+├── motos/              # Motorcycle model images by brand
+│   ├── yamaha/
+│   │   ├── mt15.png
+│   │   ├── r15.png
+│   │   └── ...
+│   ├── suzuki/
+│   ├── bmw/
+│   ├── kawasaki/
+│   ├── bajaj/
+│   ├── hero/
+│   ├── akt/
+│   └── ktm/
+├── carros/             # Car model images by brand
+│   ├── toyota/
+│   ├── mazda/
+│   └── chevrolet/
+├── car.png             # Main car illustration
+├── bus.png             # Bus illustration
+├── furgon.png          # Van illustration
+├── bg_pattern.png      # Background pattern
+├── google.png          # Google login icon
+├── facebook.png        # Facebook login icon
+└── apple.png           # Apple login icon
+```
+
+## Main Source Files (`lib/`)
+
+### Core Application Files
+
+#### `main.dart`
+**Purpose**: Application entry point
+
+- Initializes Flutter bindings
+- Connects to Supabase backend (database, auth, storage)
+- Configures timezone support for scheduled notifications
+- Initializes local notifications plugin
+- Launches the app with the login screen
+
+**Key responsibilities**:
+```dart
+// Supabase initialization
+await Supabase.initialize(
+  url: 'https://xstzerpnupubyfbhrrzu.supabase.co',
+  anonKey: '...',
+);
+
+// Timezone for notifications
+tz.initializeTimeZones();
+
+// Notifications setup
+await flutterLocalNotificationsPlugin.initialize(...);
+```
+
+Reference: `lib/main.dart:41`
+
+#### `inicio_app.dart`
+**Purpose**: Main dashboard/home screen
+
+- Displays vehicle information (brand, model, mileage)
+- Shows circular maintenance indicators (chain, filter, oil, SOAT, technomechanical)
+- Manages document uploads/downloads (SOAT, technomechanical, insurance, property title)
+- Provides access to tools (maintenance parameterization, RUNT queries, guides, GPS navigation)
+- Handles notifications for upcoming maintenance
+
+**Key sections**:
+- Header: Vehicle image, brand, model, nickname, mileage
+- Indicators: Circular progress for each maintenance type
+- Documents: Grid cards for uploading/viewing documents
+- Tools: Navigation buttons to other features
+
+Reference: `lib/inicio_app.dart:1`
+
+### Authentication Files
+
+#### `login_screen.dart`
+**Purpose**: User login interface
+
+- Email/password authentication via Supabase Auth
+- Auto-login if session exists
+- Password recovery flow
+- Email confirmation resend
+- Navigation to registration screen
+- Post-login routing based on vehicle ownership
+
+**Authentication flow**:
+```dart
+final res = await supabase.auth.signInWithPassword(
+  email: emailController.text.trim(),
+  password: passwordController.text.trim(),
+);
+```
+
+Reference: `lib/login_screen.dart:102`
+
+#### `registro_screen.dart`
+**Purpose**: New user registration
+
+- Creates new account with email/password
+- Validates password confirmation
+- Sends email verification
+- Polls for email confirmation (every 5s for 60s)
+- Handles "email already exists" scenario
+- Returns to login after successful registration
+
+Reference: `lib/registro_screen.dart:1`
+
+### Vehicle Management Files
+
+#### `Agregar_vehiculo.dart`
+**Purpose**: Motorcycle registration
+
+- Visual catalog of motorcycles organized by brand
+- Carousel selector for models (PageView)
+- Horizontal brand selector with logos
+- Form fields: mileage, model year, nickname
+- Saves to `vehiculos` table in Supabase
+- Navigates to dashboard after creation
+
+**Supported brands**: YAMAHA, SUZUKI, BMW, KAWASAKI, BAJAJ, HERO, AKT, KTM
+
+Reference: `lib/Agregar_vehiculo.dart:1`
+
+#### `Agregar_carro.dart`
+**Purpose**: Car registration
+
+- Similar to motorcycle registration but for cars
+- Different vehicle catalog (Toyota, Mazda, Chevrolet)
+- Same database schema as motorcycles
+
+Reference: `lib/Agregar_carro.dart:1`
+
+### Feature Files
+
+#### `parametrizacion_mantenimientos.dart`
+**Purpose**: Maintenance schedule configuration
+
+- Configures last maintenance dates for:
+  - Chain lubrication (every 15 days)
+  - Air filter (every 90 days)
+  - Oil change (every 25 days)
+  - SOAT (every 365 days)
+  - Technomechanical (every 365 days)
+- Calculates remaining life percentage
+- Updates `vehiculos` table fields
+- Returns results to update dashboard indicators
+
+Reference: `lib/parametrizacion_mantenimientos.dart:1`
+
+#### `rutas_screen.dart`
+**Purpose**: GPS navigation with OpenStreetMap
+
+- Interactive map using `flutter_map`
+- Destination search via Nominatim API
+- Route calculation using OSRM
+- Real-time navigation tracking
+- Automatic mileage update on route completion
+
+Reference: `lib/rutas_screen.dart:1`
+
+#### `guia.dart`
+**Purpose**: Guides and manuals viewer
+
+- PDF document viewer (Syncfusion)
+- YouTube video player integration
+- Road safety guides
+- Vehicle manual access
+
+Reference: `lib/guia.dart:1`
+
+#### `runt_webview.dart`
+**Purpose**: RUNT (National Traffic Registry) integration
+
+- Embedded WebView for RUNT website
+- Pre-fills vehicle plate and owner ID
+- Allows checking fines and official information
+- No need to leave the app
+
+Reference: `lib/runt_webview.dart:1`
+
+### Test Files
+
+#### `test/widget_test.dart`
+**Purpose**: Widget and unit tests
+
+- Contains test cases for the application
+- Standard Flutter test structure
+
+## Configuration Files
+
+### `pubspec.yaml`
+**Purpose**: Project configuration and dependencies
+
+**Key dependencies**:
+- **Backend**: `supabase_flutter` (^2.10.0)
+- **UI**: `dotted_border`, `photo_view`
+- **Web/Content**: `url_launcher`, `youtube_player_iframe`, `webview_flutter`
+- **Files**: `file_picker`, `image_picker`, `path_provider`
+- **Notifications**: `flutter_local_notifications`, `timezone`
+- **Maps**: `flutter_map`, `latlong2`, `geolocator`
+- **PDF**: `syncfusion_flutter_pdfviewer`
+
+Reference: `pubspec.yaml:1`
+
+## Code Organization Principles
+
+### Single Directory Pattern
+
+The application uses a flat structure in the `lib/` directory with all Dart files at the same level. This simple organization works well for the application's current size.
+
+### Naming Conventions
+
+- **Snake_case with capital first letter**: `Agregar_vehiculo.dart`, `Agregar_carro.dart`
+- **Snake_case lowercase**: `login_screen.dart`, `registro_screen.dart`, `inicio_app.dart`
+- **Single word lowercase**: `guia.dart`, `main.dart`
+
+### File Responsibilities
+
+Each file is a self-contained screen or feature:
+- One main widget per file
+- Helper widgets defined in the same file
+- Database queries inline within the feature
+- No separate service or repository layers
+
+## Navigation Flow
+
+```
+main.dart
+  └─> CarRentalLoginScreen (login_screen.dart)
+       ├─> RegistroScreen (registro_screen.dart)
+       │    └─> [back to login after confirmation]
+       └─> [after successful login]
+            ├─> InicioApp (if user has vehicles)
+            │    ├─> ParametrizacionMantenimientosScreen
+            │    ├─> RuntWebViewScreen
+            │    ├─> GuiaScreen
+            │    └─> RutasScreen
+            └─> AgregarVehiculoScreen (if no vehicles)
+                 ├─> AgregarCarroScreen (tab switch)
+                 └─> InicioApp (after adding vehicle)
+```
+
+## Platform-Specific Code
+
+### Mobile vs Web
+
+The application detects the platform and adjusts functionality:
+
+```dart
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+if (!kIsWeb) {
+  // Native-only features (notifications, GPS, etc.)
+  await flutterLocalNotificationsPlugin.initialize(...);
+}
+```
+
+### Required Permissions
+
+- **Location**: GPS navigation (rutas_screen.dart)
+- **Camera**: Vehicle photo capture
+- **Storage**: Document management and uploads
+
+Permissions are handled via `permission_handler` package.
+
+## Next Steps
+
+For more information on specific aspects of the architecture:
+- [Database Schema](/development/database-schema) - Supabase tables and storage structure
+- [Authentication](/development/authentication) - Auth flow and session management

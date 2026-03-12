@@ -1,0 +1,410 @@
+---
+title: Database Schema
+description: Supabase database structure, tables, and storage organization for My Auto Guide
+---
+
+## Overview
+
+My Auto Guide uses **Supabase** as its Backend-as-a-Service (BaaS) platform, providing:
+- **PostgreSQL database** for structured data
+- **Supabase Auth** for user management
+- **Supabase Storage** for file uploads (documents and images)
+
+The database connection is initialized in `main.dart:47`:
+
+```dart
+await Supabase.initialize(
+  url: 'https://xstzerpnupubyfbhrrzu.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+);
+```
+
+## Database Tables
+
+### `vehiculos` Table
+
+The primary table storing all vehicle information, maintenance schedules, and document references.
+
+#### Schema
+
+| Column | Type | Description | Nullable |
+|--------|------|-------------|----------|
+| `id` | UUID | Primary key, auto-generated | No |
+| `user_id` | UUID | Foreign key to auth.users | No |
+| `marca` | TEXT | Vehicle brand (e.g., YAMAHA, SUZUKI, TOYOTA) | No |
+| `modelo` | TEXT | Vehicle model (e.g., MT 15, Corolla) | No |
+| `apodo` | TEXT | User-defined nickname for the vehicle | Yes |
+| `kms` | INTEGER | Current mileage in kilometers | No |
+| `image_path` | TEXT | Path to vehicle image in assets | Yes |
+| `created_at` | TIMESTAMP | Record creation timestamp | No |
+| `last_cadena` | DATE | Last chain lubrication date | Yes |
+| `last_filtro` | DATE | Last air filter maintenance date | Yes |
+| `last_aceite` | DATE | Last oil change date | Yes |
+| `last_soat` | DATE | Last SOAT (insurance) issue date | Yes |
+| `last_tecno` | DATE | Last technomechanical inspection date | Yes |
+| `soat_path` | TEXT | Storage path for SOAT document | Yes |
+| `tecno_path` | TEXT | Storage path for technomechanical document | Yes |
+| `seguro_path` | TEXT | Storage path for insurance document | Yes |
+| `propiedad_path` | TEXT | Storage path for property title document | Yes |
+
+#### Indexes
+
+- **Primary key**: `id`
+- **Foreign key**: `user_id` references `auth.users(id)`
+- **Index on**: `user_id` (for efficient user queries)
+- **Index on**: `created_at` (for sorting vehicles by creation date)
+
+#### Relationships
+
+```
+auth.users (Supabase Auth)
+    |
+    | 1:N
+    |
+    v
+vehiculos
+```
+
+Each user can have multiple vehicles, but each vehicle belongs to one user.
+
+## Database Operations
+
+### Insert Vehicle
+
+Executed when a user adds a new vehicle (`Agregar_vehiculo.dart:305`):
+
+```dart
+final result = await supabase.from('vehiculos').insert({
+  'user_id': supabase.auth.currentUser!.id,
+  'marca': selectedBrand,
+  'modelo': selectedModel,
+  'apodo': apodoController.text.trim(),
+  'kms': int.parse(kmsController.text.trim()),
+  'image_path': imageAssetPath,
+}).select();
+
+final vehiculoId = result.first['id'] as String;
+```
+
+### Query User's Vehicles
+
+Retrieve vehicles for the logged-in user (`login_screen.dart:67`):
+
+```dart
+final List data = await supabase
+  .from('vehiculos')
+  .select('id')
+  .eq('user_id', user.id)
+  .order('created_at', ascending: false)
+  .limit(1);
+```
+
+### Load Vehicle Details
+
+Fetch complete vehicle information for the dashboard (`inicio_app.dart:140`):
+
+```dart
+final row = await supabase
+  .from('vehiculos')
+  .select(
+    'marca, modelo, apodo, kms, image_path, '
+    'last_cadena, last_filtro, last_aceite, last_soat, last_tecno, '
+    'soat_path, tecno_path, seguro_path, propiedad_path'
+  )
+  .eq('id', vehiculoId)
+  .single();
+```
+
+### Update Maintenance Dates
+
+Save maintenance configuration (`parametrizacion_mantenimientos.dart:106`):
+
+```dart
+await supabase
+  .from('vehiculos')
+  .update({
+    'last_cadena': cadenaDate?.toIso8601String(),
+    'last_filtro': filtroDate?.toIso8601String(),
+    'last_aceite': aceiteDate?.toIso8601String(),
+    'last_soat': soatDate?.toIso8601String(),
+    'last_tecno': tecnoDate?.toIso8601String(),
+  })
+  .eq('id', vehiculoId)
+  .select();
+```
+
+### Update Document Paths
+
+Store document upload references (`inicio_app.dart:311`):
+
+```dart
+final col = {
+  DocType.soat: 'soat_path',
+  DocType.tecno: 'tecno_path',
+  DocType.seguro: 'seguro_path',
+  DocType.propiedad: 'propiedad_path',
+}[type]!;
+
+await supabase
+  .from('vehiculos')
+  .update({col: path})
+  .eq('id', vehiculoId)
+  .select();
+```
+
+### Update Mileage
+
+Update vehicle mileage after completing a route (`rutas_screen.dart:301`):
+
+```dart
+await supabase
+  .from('vehiculos')
+  .update({'kms': newKms})
+  .eq('id', vehiculoId)
+  .select();
+```
+
+### Delete Vehicle
+
+Remove a vehicle record (`inicio_app.dart:178`):
+
+```dart
+await supabase
+  .from('vehiculos')
+  .delete()
+  .eq('id', id);
+```
+
+## Maintenance Date Fields
+
+### Date Storage Format
+
+Maintenance dates are stored as PostgreSQL `DATE` type in ISO format (YYYY-MM-DD).
+
+### Maintenance Cycles
+
+The application uses these maintenance intervals:
+
+| Maintenance Type | Field | Cycle | Days |
+|------------------|-------|-------|------|
+| Chain lubrication | `last_cadena` | Every 15 days | 15 |
+| Air filter | `last_filtro` | Every 90 days | 90 |
+| Oil change | `last_aceite` | Every 25 days | 25 |
+| SOAT insurance | `last_soat` | Every 1 year | 365 |
+| Technomechanical | `last_tecno` | Every 1 year | 365 |
+
+### Percentage Calculation
+
+The remaining life percentage is calculated in `parametrizacion_mantenimientos.dart:86`:
+
+```dart
+double _pctRestante(DateTime? last, int cicloDias) {
+  if (last == null) return 0.0;
+  final dias = DateTime.now().difference(last).inDays;
+  final restante = 1.0 - (dias / cicloDias);
+  return restante.clamp(0.0, 1.0);
+}
+```
+
+### Color Coding
+
+- **Green** (&gt;50%): Maintenance not needed soon
+- **Amber** (25-50%): Maintenance approaching
+- **Red** (&lt;25%): Maintenance needed urgently
+- **Flashing Red** (&lt;0%): Maintenance overdue
+
+## Supabase Storage
+
+### Storage Buckets
+
+The application uses a single storage bucket:
+
+```dart
+static const String _docsBucket = 'vehiculos-docs';
+```
+
+Reference: `inicio_app.dart:70`
+
+### Folder Structure
+
+Documents are organized by vehicle and document type:
+
+```
+vehiculos-docs/
+  ├── {vehiculo_id}/
+  │    ├── soat/
+  │    │    └── {filename}.pdf
+  │    ├── tecno/
+  │    │    └── {filename}.pdf
+  │    ├── seguro/
+  │    │    └── {filename}.pdf
+  │    └── propiedad/
+  │         └── {filename}.pdf
+  ├── {another_vehiculo_id}/
+  │    ├── soat/
+  │    └── ...
+```
+
+Each vehicle has its own folder identified by UUID, with subfolders for each document type.
+
+### Storage Operations
+
+#### Upload Document
+
+```dart
+final path = '${vehiculoId}/${docFolder}/${filename}';
+
+await supabase.storage
+  .from(_docsBucket)
+  .uploadBinary(
+    path,
+    bytes,
+    fileOptions: const FileOptions(upsert: false),
+  );
+```
+
+Reference: `inicio_app.dart:299`
+
+#### List Documents
+
+```dart
+final objs = await supabase.storage
+  .from(_docsBucket)
+  .list(path: folderPath);
+```
+
+Reference: `inicio_app.dart:260`
+
+#### Generate Signed URL
+
+For secure document access:
+
+```dart
+final signedUrl = await supabase.storage
+  .from(_docsBucket)
+  .createSignedUrl(path, 3600); // Valid for 1 hour
+```
+
+Reference: `inicio_app.dart:123`
+
+#### Delete Document
+
+```dart
+await supabase.storage
+  .from(_docsBucket)
+  .remove([path]);
+```
+
+Reference: `inicio_app.dart:329`
+
+### URL Caching
+
+Signed URLs are cached to avoid excessive API calls:
+
+```dart
+final Map<String, (String url, DateTime expires)> _urlCache = {};
+
+Future<String> _signedUrlCachedFor(String path) async {
+  final cached = _urlCache[path];
+  if (cached != null && DateTime.now().isBefore(cached.$2)) {
+    return cached.$1; // Return cached URL
+  }
+  // Generate new signed URL
+  final signed = await _signedUrlFor(path);
+  final expires = DateTime.now().add(const Duration(seconds: 3500));
+  _urlCache[path] = (signed, expires);
+  return signed;
+}
+```
+
+Reference: `inicio_app.dart:107`
+
+## Row Level Security (RLS)
+
+Supabase RLS policies should be configured to ensure:
+
+1. **Users can only access their own vehicles**:
+   ```sql
+   CREATE POLICY "Users can view own vehicles"
+   ON vehiculos FOR SELECT
+   USING (auth.uid() = user_id);
+   ```
+
+2. **Users can only modify their own vehicles**:
+   ```sql
+   CREATE POLICY "Users can update own vehicles"
+   ON vehiculos FOR UPDATE
+   USING (auth.uid() = user_id);
+   ```
+
+3. **Users can only insert vehicles for themselves**:
+   ```sql
+   CREATE POLICY "Users can insert own vehicles"
+   ON vehiculos FOR INSERT
+   WITH CHECK (auth.uid() = user_id);
+   ```
+
+4. **Users can only delete their own vehicles**:
+   ```sql
+   CREATE POLICY "Users can delete own vehicles"
+   ON vehiculos FOR DELETE
+   USING (auth.uid() = user_id);
+   ```
+
+5. **Storage bucket policies**: Users can only access documents for their own vehicles
+
+## Database Best Practices
+
+### Transaction Safety
+
+All database operations use `.select()` to confirm success:
+
+```dart
+await supabase
+  .from('vehiculos')
+  .update(data)
+  .eq('id', id)
+  .select(); // Confirms the operation succeeded
+```
+
+### Error Handling
+
+Database errors are caught and displayed to users:
+
+```dart
+try {
+  await supabase.from('vehiculos').insert(data);
+} on PostgrestException catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Database error: ${e.message}')),
+  );
+}
+```
+
+### Efficient Queries
+
+Only select required fields to minimize data transfer:
+
+```dart
+// Good: Select only needed fields
+.select('id, marca, modelo')
+
+// Avoid: Selecting all fields when not needed
+.select('*')
+```
+
+## Migration Considerations
+
+When modifying the schema:
+
+1. Add new columns as nullable initially
+2. Update application code to handle both old and new schema
+3. Deploy application updates
+4. Run data migration scripts
+5. Make columns non-nullable if needed
+6. Remove old columns after verification
+
+## Next Steps
+
+- [Project Structure](/development/project-structure) - Codebase organization
+- [Authentication](/development/authentication) - User authentication flow

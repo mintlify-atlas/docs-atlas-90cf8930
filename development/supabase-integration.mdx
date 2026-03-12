@@ -1,0 +1,448 @@
+---
+title: Supabase Integration
+description: Complete guide to using Supabase for database operations, file storage, and authentication in My Auto Guide
+---
+
+## Overview
+
+My Auto Guide uses **Supabase** as its backend-as-a-service platform, providing:
+
+- **PostgreSQL Database**: Store vehicle data, maintenance records, and document references
+- **Authentication**: Secure user login and session management
+- **Storage**: File upload/download for vehicle documents (SOAT, insurance, etc.)
+- **Signed URLs**: Temporary secure access to private files
+
+## Initial Setup
+
+### Supabase Initialization
+
+The Supabase client is initialized in `main.dart` during app startup:
+
+```dart
+// lib/main.dart:47
+await Supabase.initialize(
+  url: 'https://xstzerpnupubyfbhrrzu.supabase.co',
+  anonKey: 'eyJhbGci...', // Public anon key
+);
+```
+
+### Client Instance
+
+Access the Supabase client throughout the app:
+
+```dart
+final supabase = Supabase.instance.client;
+```
+
+This singleton instance provides access to all Supabase services.
+
+---
+
+## Database Operations
+
+### Query Data
+
+**Example: Load vehicle information**
+
+```dart
+// lib/inicio_app.dart:139-148
+Future<Map<String, dynamic>> _cargar() async {
+  final row = await supabase
+      .from('vehiculos')
+      .select(
+        'marca, modelo, apodo, kms, image_path, last_cadena, '
+        'last_filtro, last_aceite, last_soat, last_tecno, '
+        'soat_path, tecno_path, seguro_path, propiedad_path',
+      )
+      .eq('id', vehiculoId)
+      .single();
+  return row;
+}
+```
+
+**Key Points:**
+- `.select()` specifies columns to retrieve
+- `.eq()` filters by exact match (WHERE clause)
+- `.single()` returns one row as a Map
+
+### Insert Data
+
+**Example: Create new vehicle**
+
+```dart
+// lib/Agregar_vehiculo.dart:304-315
+final row = await supabase
+    .from('vehiculos')
+    .insert({
+      'user_id': user.id,
+      'marca': marcaSeleccionada,
+      'modelo': modelo,
+      'apodo': apodo,
+      'kms': kms,
+      'image_path': imagePath,
+    })
+    .select()
+    .single(); // Returns the created row with auto-generated ID
+
+final newVehicleId = row['id'] as String;
+```
+
+**Key Points:**
+- `.insert()` creates new records
+- Chain `.select()` to return the created row
+- Access auto-generated fields like `id` from the returned data
+
+### Update Data
+
+**Example: Update vehicle kilometrage**
+
+```dart
+// lib/rutas_screen.dart:314-316
+await supabase
+    .from('vehiculos')
+    .update({'kms': nuevoKm})
+    .eq('id', widget.vehiculoId);
+```
+
+**Example: Update maintenance date**
+
+```dart
+// lib/inicio_app.dart:311-315
+await supabase
+    .from('vehiculos')
+    .update({col: path})
+    .eq('id', widget.vehiculoId)
+    .select();
+```
+
+**Key Points:**
+- `.update()` modifies existing records
+- Always use `.eq()` or other filters to target specific rows
+- Use `.select()` to return updated data
+
+### Delete Data
+
+**Example: Delete vehicle**
+
+```dart
+// lib/inicio_app.dart:178
+await supabase
+    .from('vehiculos')
+    .delete()
+    .eq('id', id);
+```
+
+---
+
+## Authentication
+
+### Current User
+
+Access the authenticated user:
+
+```dart
+final user = supabase.auth.currentUser;
+if (user == null) {
+  // Not authenticated - redirect to login
+  return;
+}
+
+final userId = user.id; // User's unique ID
+final email = user.email; // User's email
+```
+
+### Sign Out
+
+```dart
+// lib/inicio_app.dart:150-156
+Future<void> _cerrarSesion() async {
+  await supabase.auth.signOut();
+  if (!mounted) return;
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => const CarRentalLoginScreen()),
+    (route) => false,
+  );
+}
+```
+
+### Row-Level Security (RLS)
+
+Supabase uses RLS to ensure users can only access their own data. Queries automatically filter by `user_id` based on the authenticated session:
+
+```sql
+-- Example RLS policy
+CREATE POLICY "Users can view own vehicles"
+  ON vehiculos FOR SELECT
+  USING (auth.uid() = user_id);
+```
+
+---
+
+## File Storage
+
+My Auto Guide uses Supabase Storage to manage vehicle documents.
+
+### Bucket Structure
+
+**Bucket name**: `vehiculos-docs`
+
+**Folder structure**:
+```
+vehiculos-docs/
+└── {vehiculoId}/
+    ├── soat/
+    │   └── {timestamp}.pdf
+    ├── tecno/
+    │   └── {timestamp}.jpg
+    ├── seguro/
+    │   └── {timestamp}.pdf
+    └── propiedad/
+        └── {timestamp}.png
+```
+
+### Upload Files
+
+```dart
+// lib/inicio_app.dart:283-326
+Future<String?> _uploadDoc(DocType type) async {
+  try {
+    // 1. Pick file using file_picker
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'heic', 'gif'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return null;
+
+    // 2. Read file bytes
+    final f = result.files.single;
+    final bytes = f.bytes ?? await File(f.path!).readAsBytes();
+    final ext = (f.extension ?? 'bin').toLowerCase();
+    
+    // 3. Generate unique path
+    final ts = DateTime.now().millisecondsSinceEpoch;
+    final folder = _folderPath(type); // e.g., "vehiculoId/soat"
+    final path = '$folder/$ts.$ext';
+
+    // 4. Upload to Supabase Storage
+    await supabase.storage.from(_docsBucket).uploadBinary(
+      path,
+      bytes,
+      fileOptions: const FileOptions(upsert: false),
+    );
+
+    // 5. Update database reference
+    final col = {
+      DocType.soat: 'soat_path',
+      DocType.tecno: 'tecno_path',
+      DocType.seguro: 'seguro_path',
+      DocType.propiedad: 'propiedad_path',
+    }[type]!;
+    
+    await supabase
+        .from('vehiculos')
+        .update({col: path})
+        .eq('id', widget.vehiculoId)
+        .select();
+
+    return path;
+  } on StorageException catch (e) {
+    // Handle error
+    return null;
+  }
+}
+```
+
+**Key Points:**
+- Use `.uploadBinary()` for raw bytes
+- Set `upsert: false` to prevent overwriting
+- Store file path reference in database
+
+### List Files
+
+```dart
+// lib/inicio_app.dart:257-281
+Future<List<(String name, String url)>> _listDocsSigned(DocType type) async {
+  try {
+    final folder = _folderPath(type);
+    
+    // List files in folder
+    final objs = await supabase.storage.from(_docsBucket).list(
+      path: folder,
+      searchOptions: const SearchOptions(
+        limit: 100,
+        sortBy: SortBy(column: 'name', order: 'asc'),
+      ),
+    );
+    
+    // Generate signed URLs for each file
+    final futures = objs.map((o) async {
+      final path = '$folder/${o.name}';
+      final signed = await _signedUrlCachedFor(path);
+      return (o.name, signed);
+    });
+    
+    return await Future.wait(futures);
+  } on StorageException catch (e) {
+    return [];
+  }
+}
+```
+
+### Delete Files
+
+```dart
+// lib/inicio_app.dart:328-330
+Future<void> _deleteStorageFile(String path) async {
+  await supabase.storage.from(_docsBucket).remove([path]);
+}
+```
+
+### Signed URLs
+
+Private files require **signed URLs** for temporary access:
+
+```dart
+// lib/inicio_app.dart:118-124
+Future<String> _signedUrlFor(String path) async {
+  final user = supabase.auth.currentUser;
+  if (user == null) {
+    throw Exception('Usuario no autenticado');
+  }
+  return await supabase.storage
+      .from(_docsBucket)
+      .createSignedUrl(path, 3600); // Valid for 1 hour
+}
+```
+
+**URL Caching Pattern** (avoid excessive API calls):
+
+```dart
+// lib/inicio_app.dart:107-116
+final Map<String, (String url, DateTime expires)> _urlCache = {};
+
+Future<String> _signedUrlCachedFor(String path) async {
+  final cached = _urlCache[path];
+  if (cached != null && DateTime.now().isBefore(cached.$2)) {
+    return cached.$1; // Return cached URL if still valid
+  }
+  final signed = await _signedUrlFor(path);
+  final expires = DateTime.now().add(const Duration(seconds: 3500));
+  _urlCache[path] = (signed, expires);
+  return signed;
+}
+```
+
+---
+
+## Error Handling
+
+### Database Errors
+
+```dart
+try {
+  await supabase.from('vehiculos').insert(data);
+} on PostgrestException catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Database error: ${e.message}')),
+  );
+}
+```
+
+### Storage Errors
+
+```dart
+try {
+  await supabase.storage.from(bucket).upload(path, bytes);
+} on StorageException catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Upload failed: ${e.message}')),
+  );
+}
+```
+
+---
+
+## Best Practices
+
+### 1. Always Check Authentication
+
+```dart
+final user = supabase.auth.currentUser;
+if (user == null) {
+  // Redirect to login or show error
+  return;
+}
+```
+
+### 2. Use Typed Data
+
+```dart
+final kms = data['kms'] as int;
+final marca = (data['marca'] as String? ?? '').toUpperCase();
+final lastDate = data['last_soat'] != null 
+    ? DateTime.parse(data['last_soat'])
+    : null;
+```
+
+### 3. Cache Expensive Operations
+
+Signed URLs, file listings, and complex queries should be cached when possible.
+
+### 4. Handle Null Values
+
+Database queries may return null for optional fields:
+
+```dart
+final imagePath = v['image_path'] as String? ?? '';
+if (imagePath.isEmpty) {
+  // Show placeholder
+}
+```
+
+### 5. Use Transactions for Complex Operations
+
+When updating multiple related records, consider using Supabase RPC functions to ensure atomicity.
+
+---
+
+## Database Schema
+
+### `vehiculos` Table
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key (auto-generated) |
+| `user_id` | uuid | Foreign key to auth.users |
+| `marca` | text | Vehicle brand (YAMAHA, SUZUKI, etc.) |
+| `modelo` | text | Model name |
+| `apodo` | text | User's nickname for vehicle |
+| `kms` | integer | Current kilometrage |
+| `image_path` | text | Asset path to vehicle image |
+| `last_cadena` | timestamp | Last chain lubrication date |
+| `last_filtro` | timestamp | Last air filter change |
+| `last_aceite` | timestamp | Last oil change |
+| `last_soat` | timestamp | SOAT expiration date |
+| `last_tecno` | timestamp | Technical inspection date |
+| `soat_path` | text | Storage path to SOAT document |
+| `tecno_path` | text | Storage path to technical inspection |
+| `seguro_path` | text | Storage path to insurance |
+| `propiedad_path` | text | Storage path to ownership certificate |
+
+---
+
+## Related Files
+
+- **Initialization**: `lib/main.dart:47`
+- **Vehicle CRUD**: `lib/inicio_app.dart`, `lib/Agregar_vehiculo.dart`
+- **File Management**: `lib/inicio_app.dart:257-330`
+- **Authentication**: `lib/login_screen.dart`, `lib/registro_screen.dart`
+- **Route Tracking**: `lib/rutas_screen.dart:314`
+
+---
+
+## Additional Resources
+
+- [Supabase Flutter Documentation](https://supabase.com/docs/reference/dart/introduction)
+- [Supabase Storage Guide](https://supabase.com/docs/guides/storage)
+- [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security)

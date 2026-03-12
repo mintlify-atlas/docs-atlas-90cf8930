@@ -1,0 +1,356 @@
+---
+title: Using Navigation
+description: Navigate with GPS, track mileage, and record trips automatically
+---
+
+# Using Navigation
+
+My Auto Guide includes a powerful GPS navigation system that helps you reach your destination while automatically tracking your vehicle's mileage. Built with 100% free and open-source technologies.
+
+## Navigation Features
+
+The navigation system provides:
+
+- **Real-time GPS tracking** with high accuracy
+- **Route calculation** using OSRM (Open Source Routing Machine)
+- **Interactive maps** powered by OpenStreetMap
+- **Automatic mileage tracking** that updates your vehicle's odometer
+- **Free tracking mode** for drives without a specific destination
+- **Turn-by-turn guidance** with visual route display
+
+<Note>
+All navigation features are completely free. No subscriptions, no API limits, no hidden costs.
+</Note>
+
+## Understanding the Navigation Screen
+
+### Map Display
+
+The main screen shows:
+- **Your current location** - Blue circle with navigation icon
+- **Destination marker** - Red circle with flag icon (when route is active)
+- **Route line** - Blue line showing the optimal path
+- **Traveled path** - Green line showing where you've driven
+- **Map tiles** - High-quality CartoDB Voyager street maps
+
+### Status Bar
+
+The top bar displays:
+- **Back button** - Return to dashboard
+- **Search field** - Find destinations (when idle)
+- **Navigation status** - Shows mode and distance traveled (when active)
+
+### Information Panel
+
+The bottom panel shows:
+- **Destination name** and address
+- **Total route distance** in kilometers
+- **Estimated travel time** in minutes
+- **Distance traveled** during navigation (green chip)
+
+## Navigation Modes
+
+The app operates in different states:
+
+1. **Idle** - Ready to search for a destination
+2. **Route Ready** - Route calculated, ready to start
+3. **Navigating** - Actively following a route to a destination
+4. **Free Tracking** - Recording mileage without a destination
+5. **Completed** - Trip finished, mileage updated
+
+## Navigating to a Destination
+
+<Steps>
+
+### Step 1: Access Navigation
+
+From your vehicle dashboard:
+1. Scroll to the **"Herramientas"** (Tools) section
+2. Tap **"Rutas"**
+3. Wait for GPS to acquire your location
+4. The map centers on your current position
+
+<Tip>
+For best GPS accuracy, use navigation outdoors with a clear view of the sky. Allow a few seconds for GPS to lock onto your position.
+</Tip>
+
+### Step 2: Search for Your Destination
+
+1. Tap the search bar at the top
+2. Type your destination:
+   - Street address
+   - Business name
+   - Landmark or point of interest
+   - City or neighborhood
+
+3. Search results appear as you type:
+   - Up to 5 matching locations
+   - Full addresses displayed
+   - Location pin icon for each result
+
+4. Tap the correct result from the list
+
+<Note>
+The search is powered by Nominatim, which searches OpenStreetMap's extensive worldwide database. Be as specific as possible for best results.
+</Note>
+
+### Step 3: Review the Route
+
+After selecting a destination:
+1. The app calculates the optimal route (3-5 seconds)
+2. The route appears as a blue line on the map
+3. The map automatically zooms to show the full route
+4. The bottom panel displays:
+   - **Destination name**
+   - **Total distance** (e.g., "12.5 km")
+   - **Estimated time** (e.g., "23 min")
+
+5. Review the route on the map
+6. Use pinch gestures to zoom in/out if needed
+
+### Step 4: Start Navigation
+
+When ready to depart:
+1. Tap the green **"Iniciar ruta"** (Start Route) button
+2. Navigation begins immediately:
+   - Your position updates in real-time
+   - The traveled path turns green
+   - Distance traveled appears in the status bar
+   - The map follows your movement
+
+<Warning>
+Do NOT use your phone while driving. Mount your device securely and set up navigation before starting your trip. Pull over safely if you need to interact with the app.
+</Warning>
+
+### Step 5: Follow the Route
+
+While navigating:
+- **Blue dot** shows your current position
+- **Blue line** shows remaining route
+- **Green line** shows path you've traveled
+- **Distance counter** updates continuously
+- Map auto-centers on your position
+
+The app tracks:
+- Exact distance traveled (accurate to 5 meters)
+- Time elapsed
+- Progress toward destination
+
+### Step 6: Arrive at Destination
+
+When you reach your destination:
+
+**Automatic Completion:**
+- When you're within 50 meters of the destination
+- The app automatically completes the trip
+- A completion dialog appears
+
+**Manual Completion:**
+- Tap the red **"Finalizar recorrido"** (Finish Trip) button
+- Confirm in the dialog that appears
+- Useful if you park nearby but not exactly at the pin
+
+### Step 7: Trip Summary
+
+A completion dialog shows:
+- **Distance traveled** for this trip (e.g., "12.3 km")
+- **New total mileage** for your vehicle
+- Confirmation that the odometer has been updated
+
+Tap **"Aceptar"** to:
+- Return to your vehicle dashboard
+- See the updated mileage immediately
+- Trip data is permanently saved
+
+</Steps>
+
+## Free Tracking Mode
+
+For trips without a specific destination, use Free Tracking Mode to automatically record mileage.
+
+<Steps>
+
+### When to Use Free Tracking
+
+- Exploring or joy riding
+- Running multiple errands without a set route
+- Testing the bike/car
+- Any trip where you don't need navigation
+
+### Starting Free Tracking
+
+1. Open the Navigation screen
+2. Don't search for a destination
+3. Tap the **"Iniciar Recorrido Libre"** (Start Free Tracking) button
+4. The app begins recording immediately:
+   - Status bar shows "Modo Libre" (Free Mode)
+   - No destination marker appears
+   - Distance counter starts from 0.0 km
+   - Your path is traced in green
+
+### During Free Tracking
+
+- The map follows your position
+- Distance accumulates automatically
+- No route guidance is provided
+- You're free to go anywhere
+- The trip continues until you manually end it
+
+### Ending Free Tracking
+
+1. Tap the red **"Finalizar recorrido"** button whenever you're ready
+2. Confirm the total distance
+3. Mileage is added to your vehicle
+4. Return to dashboard
+
+</Steps>
+
+<Tip>
+Free Tracking is perfect for motorcycle enthusiasts who enjoy exploring without a fixed destination. Your mileage still gets recorded accurately!
+</Tip>
+
+## Automatic Mileage Updates
+
+One of the most valuable features is automatic odometer tracking:
+
+### How It Works
+
+1. **GPS tracks** your exact position every 5 meters
+2. **Distance calculation** uses high-precision geodesic formulas
+3. **Running total** accumulates throughout your trip
+4. **Database update** happens when you complete the trip
+5. **Vehicle record** is updated with new total mileage
+
+### Accuracy
+
+The system is highly accurate:
+- GPS accuracy: ±5-10 meters under good conditions
+- Distance filter: 5 meters (prevents GPS drift from inflating distance)
+- Calculation method: Haversine formula (accounts for Earth's curvature)
+- Typical accuracy: Within 1-2% of actual distance
+
+<Note>
+Mileage tracking accuracy depends on GPS signal quality. In tunnels, dense urban areas, or under heavy tree cover, accuracy may decrease temporarily.
+</Note>
+
+### Viewing Updated Mileage
+
+After any navigation session:
+1. Return to your dashboard
+2. Check the **"Kilometraje"** display in the vehicle info card
+3. The value reflects the trip you just completed
+4. Maintenance indicators automatically recalculate based on new mileage
+
+## Map Controls
+
+### My Location Button
+
+When not actively navigating:
+- A floating action button appears in the bottom-right
+- Tap it to center the map on your current position
+- Useful if you've panned away from your location
+
+### Zoom Controls
+
+Use standard gestures:
+- **Pinch** - Zoom in/out
+- **Double-tap** - Zoom in
+- **Two-finger tap** - Zoom out
+- **Drag** - Pan the map
+
+### Map Types
+
+The app uses CartoDB Voyager tiles which provide:
+- Clear, modern styling
+- Excellent label readability
+- Good contrast for visibility while driving
+- High detail at all zoom levels
+
+## Canceling a Route
+
+Before starting navigation, you can cancel:
+
+1. Review the calculated route
+2. Tap the **"Cancelar"** button in the bottom panel
+3. The route clears and you return to idle mode
+4. Search for a different destination or close navigation
+
+<Note>
+Once you start navigating, there's no "cancel" - only "finish." Finishing the trip updates your mileage even if you didn't reach the destination.
+</Note>
+
+## Best Practices
+
+### Before You Start
+
+- **Mount your device** securely where you can see it
+- **Set your destination** completely before moving
+- **Check the route** makes sense for your needs
+- **Ensure good GPS signal** (outdoors, clear sky view)
+- **Charge your device** or connect to power (GPS drains battery)
+
+### While Navigating
+
+- **Don't interact** with the phone while moving
+- **Glance only** at the screen for route confirmation
+- **Pull over** if you need to check details or change settings
+- **Follow traffic laws** over the suggested route
+- **Stay alert** to real-world conditions the map doesn't show
+
+### After Your Trip
+
+- **Verify mileage** was updated correctly
+- **Check maintenance indicators** for any new warnings
+- **Note any route issues** (road closures, etc.) you encountered
+
+## Troubleshooting
+
+### GPS Won't Acquire Position
+
+- **Enable location services** in device settings
+- **Grant location permission** to My Auto Guide
+- **Move outdoors** if you're inside
+- **Wait 30-60 seconds** for initial GPS lock
+- **Restart the app** if position doesn't appear
+
+### Route Calculation Fails
+
+- **Check internet connection** (required for routing)
+- **Try a different search term** for your destination
+- **Verify destination exists** and is reachable by road
+- **Search for nearby address** if exact location doesn't work
+
+### Map Not Loading
+
+- **Check internet connection** (maps tiles require data)
+- **Wait a few seconds** for tiles to download
+- **Zoom out** to load lower-resolution tiles first
+- **Restart the app** if tiles remain blank
+
+### Mileage Not Updating
+
+- **Verify internet connection** when finishing trip
+- **Check you completed** the trip properly (tapped finish button)
+- **Refresh dashboard** by pulling down or reopening
+- **Review trip history** to see if trip was recorded
+
+### Inaccurate Distance Tracking
+
+- **Poor GPS conditions:**
+  - Indoor/underground parking
+  - Dense urban canyons
+  - Heavy tree cover
+  - Tunnels
+
+- **Improve accuracy by:**
+  - Pausing tracking until GPS improves
+  - Keeping device with clear sky view
+  - Avoiding pocket storage while tracking
+
+### Battery Draining Quickly
+
+- GPS is power-intensive, this is normal
+- **Connect to vehicle power** during navigation
+- **Reduce screen brightness**
+- **Close other apps** running in background
+- **Consider** bringing a power bank for longer trips

@@ -1,0 +1,210 @@
+---
+title: "Environment Setup"
+description: "Set up your development environment for My Auto Guide"
+---
+
+## Prerequisites
+
+Before you begin developing My Auto Guide, ensure you have the following tools installed on your system.
+
+### Flutter SDK
+
+My Auto Guide requires Flutter SDK version **3.3.0 or higher** (but less than 4.0.0).
+
+<CodeGroup>
+
+```bash macOS/Linux
+# Download Flutter SDK
+git clone https://github.com/flutter/flutter.git -b stable
+
+# Add Flutter to PATH (add to ~/.bashrc or ~/.zshrc)
+export PATH="$PATH:`pwd`/flutter/bin"
+
+# Verify installation
+flutter doctor
+```
+
+```bash Windows
+# Download Flutter SDK from flutter.dev
+# Extract to C:\src\flutter
+
+# Add to PATH in System Environment Variables
+# C:\src\flutter\bin
+
+# Verify installation
+flutter doctor
+```
+
+</CodeGroup>
+
+Run `flutter doctor` to check for any missing dependencies and follow the instructions to complete your setup.
+
+### Required Tools
+
+Depending on your target platform, you'll need:
+
+#### For Android Development
+
+- **Android Studio** (latest version recommended)
+- **Android SDK** (API level 21 or higher)
+- **Android SDK Command-line Tools**
+- **Android SDK Build-Tools**
+- **Android Emulator** (optional, for testing)
+
+<Steps>
+  <Step title="Install Android Studio">
+    Download and install Android Studio from [developer.android.com](https://developer.android.com/studio)
+  </Step>
+  
+  <Step title="Install Android SDK">
+    Open Android Studio and navigate to **Settings → Appearance & Behavior → System Settings → Android SDK**
+    
+    Install the following:
+    - Android SDK Platform (API 33 or higher)
+    - Android SDK Build-Tools
+    - Android SDK Command-line Tools
+  </Step>
+  
+  <Step title="Accept licenses">
+    ```bash
+    flutter doctor --android-licenses
+    ```
+    Accept all licenses by typing 'y' when prompted
+  </Step>
+</Steps>
+
+#### For iOS Development (macOS only)
+
+- **Xcode** (latest version from Mac App Store)
+- **CocoaPods** (dependency manager)
+- **iOS Simulator** (included with Xcode)
+
+```bash macOS
+# Install Xcode Command Line Tools
+xcode-select --install
+
+# Install CocoaPods
+sudo gem install cocoapods
+
+# Setup CocoaPods
+pod setup
+```
+
+## IDE Setup
+
+You can use either Visual Studio Code or Android Studio as your primary IDE.
+
+### Visual Studio Code
+
+<Steps>
+  <Step title="Install VS Code">
+    Download from [code.visualstudio.com](https://code.visualstudio.com/)
+  </Step>
+  
+  <Step title="Install Flutter extension">
+    Open VS Code and install the **Flutter** extension from the Extensions marketplace
+    
+    This will automatically install the Dart extension as well
+  </Step>
+  
+  <Step title="Verify setup">
+    Press `Cmd/Ctrl + Shift + P` and run **Flutter: Run Flutter Doctor**
+  </Step>
+</Steps>
+
+### Android Studio
+
+<Steps>
+  <Step title="Install plugins">
+    Open Android Studio and navigate to **Settings → Plugins**
+    
+    Install:
+    - Flutter plugin
+    - Dart plugin
+  </Step>
+  
+  <Step title="Restart Android Studio">
+    Restart to activate the plugins
+  </Step>
+</Steps>
+
+## Platform-Specific Configuration
+
+### Android Configuration
+
+My Auto Guide requires several permissions on Android. These are configured in `android/app/src/main/AndroidManifest.xml`:
+
+```xml AndroidManifest.xml
+<!-- Required permissions -->
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
+```
+
+**Required for:**
+- 📍 **Location**: GPS navigation and route tracking
+- 📷 **Camera**: Capturing vehicle photos and documents
+- 📁 **Storage**: Managing documents and files
+- 🌐 **Internet**: Supabase backend and external services
+
+### iOS Configuration (macOS only)
+
+For iOS development, you'll need to configure permissions in `ios/Runner/Info.plist`:
+
+```xml Info.plist
+<key>NSCameraUsageDescription</key>
+<string>Required to capture vehicle photos</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Required to select photos from gallery</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Required for GPS navigation</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Required for route tracking</string>
+```
+
+## Verify Your Setup
+
+Run the following command to verify everything is configured correctly:
+
+```bash
+flutter doctor -v
+```
+
+You should see checkmarks (✓) for:
+- Flutter SDK
+- Android toolchain (for Android development)
+- Xcode (for iOS development, macOS only)
+- VS Code or Android Studio
+- Connected devices (if any)
+
+<Warning>
+  Some checks may show warnings or errors. Follow the suggestions provided by `flutter doctor` to resolve them.
+</Warning>
+
+## SDK Version Requirements
+
+From `pubspec.yaml`:
+
+```yaml pubspec.yaml
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+```
+
+Ensure your Flutter SDK meets this requirement by running:
+
+```bash
+flutter --version
+```
+
+## Next Steps
+
+Once your environment is set up, proceed to:
+
+<Card title="Supabase Configuration" icon="database" href="/development/supabase-configuration">
+  Configure your Supabase backend for authentication and data storage
+</Card>

@@ -1,0 +1,309 @@
+---
+title: 'App Permissions'
+description: 'Understanding and managing permissions for My Auto Guide'
+icon: 'shield-check'
+---
+
+## Why Does My Auto Guide Need Permissions?
+
+My Auto Guide requires certain permissions to provide its core functionality. This page explains what permissions the app needs, why they're necessary, and how to enable them on your device.
+
+<Note>
+My Auto Guide only requests permissions that are essential for its features. The app does not access any data outside of what's necessary to provide you with vehicle maintenance tracking, document storage, and GPS navigation.
+</Note>
+
+## Required Permissions
+
+### Location (GPS)
+
+**What it does**: Accesses your device's GPS to determine your current location.
+
+**Why it's needed**:
+- **GPS Navigation**: Show your position on the map and calculate routes to destinations
+- **Real-time Tracking**: Track your movement during navigation to calculate distances
+- **Automatic Kilometrage Updates**: Add traveled distance to your vehicle's total kilometrage
+- **Free Tracking Mode**: Monitor your journey without a specific destination
+
+**When it's used**:
+- When you open the Routes/Navigation screen
+- During active navigation sessions
+- When using Free Tracking mode
+
+**What data is collected**:
+- Your real-time GPS coordinates (latitude and longitude)
+- Distance traveled during navigation
+- This data is used only for navigation and kilometrage tracking
+- Location data is not stored permanently or shared with third parties
+
+<Warning>
+Without location permission, you cannot use the GPS navigation features. All other features (maintenance tracking, document storage) will continue to work normally.
+</Warning>
+
+### Camera
+
+**What it does**: Allows the app to access your device's camera.
+
+**Why it's needed**:
+- **Document Capture**: Take photos of vehicle documents directly from the app
+- **Quick Upload**: Instantly capture and upload SOAT, Tecnomecánica, and other important documents
+
+**When it's used**:
+- When you choose to take a photo while uploading a document
+- Only activated when you explicitly tap a "Take Photo" option
+
+**What data is collected**:
+- Photos you take are uploaded to secure cloud storage
+- The camera only activates when you initiate photo capture
+- No automatic or background photography occurs
+
+<Note>
+Camera permission is optional. You can still upload documents by selecting existing photos from your gallery or choosing PDF files from your device storage.
+</Note>
+
+### Storage / Files
+
+**What it does**: Allows the app to read files and images from your device storage.
+
+**Why it's needed**:
+- **Document Upload**: Select photos and PDF files from your device to upload as vehicle documents
+- **Image Selection**: Choose existing photos of documents instead of taking new ones
+- **File Management**: Access PDF documents stored on your device
+
+**When it's used**:
+- When uploading documents (SOAT, Tecnomecánica, Seguro, Tarjeta de Propiedad)
+- When you select files from your gallery or file manager
+
+**What data is collected**:
+- Only files you explicitly select for upload
+- The app cannot access any files without your selection
+- No automatic scanning or indexing of your storage occurs
+
+**Platform-specific details**:
+
+**Android 13+ (API 33+)**:
+- Uses `READ_MEDIA_IMAGES` for image access
+- More granular control - only images are accessible
+
+**Android 12 and earlier**:
+- Uses `READ_EXTERNAL_STORAGE` (API 32 and below)
+- `WRITE_EXTERNAL_STORAGE` (API 29 and below) for temporary file operations
+
+**iOS**:
+- Uses photo library access permissions
+- You'll be prompted when selecting photos
+
+### Internet
+
+**What it does**: Allows the app to connect to the internet.
+
+**Why it's needed**:
+- **Authentication**: Login and account management via Supabase
+- **Cloud Sync**: Store and retrieve vehicle data and documents
+- **GPS Routing**: Calculate routes using OSRM (Open Source Routing Machine)
+- **Map Tiles**: Display OpenStreetMap tiles for navigation
+- **Document Storage**: Upload and download documents to/from Supabase Storage
+- **RUNT Integration**: Query official vehicle information
+
+**When it's used**:
+- Throughout the app for most features
+- Required for login, data sync, navigation, and document management
+
+<Note>
+Internet permission is automatically granted on Android and doesn't require user approval. This is standard for apps that connect to online services.
+</Note>
+
+## Optional Permissions
+
+### Background Location (Android)
+
+**What it does**: Allows the app to access location even when not actively being used.
+
+**Why it might be requested**:
+- For continuous GPS tracking during long navigation sessions
+- To maintain location updates if you switch to another app briefly
+
+**Platform**: Android API 29+ only
+
+<Note>
+Background location is not currently required for normal app operation. The app works best when kept in the foreground during navigation.
+</Note>
+
+## How to Enable Permissions
+
+### Android
+
+#### Location Permission
+
+1. Open **Settings** on your Android device
+2. Go to **Apps** or **Applications**
+3. Find and tap **My Auto Guide**
+4. Tap **Permissions**
+5. Tap **Location**
+6. Select one of the following:
+   - **Allow only while using the app** (Recommended)
+   - **Allow all the time** (If you need background tracking)
+   - **Ask every time**
+7. Make sure **Use precise location** is enabled for best GPS accuracy
+
+#### Camera Permission
+
+1. Open **Settings**
+2. Go to **Apps** > **My Auto Guide**
+3. Tap **Permissions**
+4. Tap **Camera**
+5. Select **Allow only while using the app**
+
+#### Storage/Files Permission
+
+**Android 13+:**
+1. Open **Settings**
+2. Go to **Apps** > **My Auto Guide**
+3. Tap **Permissions**
+4. Tap **Photos and videos** or **Files and media**
+5. Select **Allow**
+
+**Android 12 and earlier:**
+1. Open **Settings**
+2. Go to **Apps** > **My Auto Guide**
+3. Tap **Permissions**
+4. Tap **Storage**
+5. Select **Allow**
+
+### iOS
+
+#### Location Permission
+
+1. Open **Settings** on your iPhone/iPad
+2. Scroll down and tap **My Auto Guide**
+3. Tap **Location**
+4. Select **While Using the App**
+5. Turn on **Precise Location** for better GPS accuracy
+
+<Note>
+"While Using the App" is the recommended setting for iOS. The "Always" option is not necessary for My Auto Guide.
+</Note>
+
+#### Camera Permission
+
+1. Open **Settings**
+2. Scroll down and tap **My Auto Guide**
+3. Find **Camera** in the list
+4. Toggle it **On**
+
+Alternatively:
+1. Go to **Settings** > **Privacy** > **Camera**
+2. Find **My Auto Guide** in the list
+3. Toggle it **On**
+
+#### Photos Permission
+
+1. Open **Settings**
+2. Tap **Privacy** > **Photos**
+3. Find **My Auto Guide**
+4. Select **Read and Write** or **All Photos**
+
+Alternatively, when you first try to upload a photo, iOS will prompt you to grant permission.
+
+## Permission Prompts
+
+My Auto Guide follows platform best practices for requesting permissions:
+
+### When Permissions Are Requested
+
+1. **Location**: When you first open the Routes/Navigation screen
+2. **Camera**: When you choose to take a photo for a document
+3. **Storage/Photos**: When you select files or photos to upload
+
+### What Happens If You Deny
+
+- **Location Denied**: You cannot use GPS navigation features, but all other app functions work normally
+- **Camera Denied**: You can still upload documents by selecting existing files from your gallery
+- **Storage Denied**: You cannot upload documents until permission is granted
+
+### Permanently Denied Permissions
+
+If you accidentally deny a permission and select "Don't ask again" (Android) or "Don't Allow" multiple times (iOS), the app cannot prompt you again. You must manually enable the permission in your device settings using the instructions above.
+
+## Permission Best Practices
+
+<AccordionGroup>
+  <Accordion title="Do I need to grant all permissions?">
+    No. You only need to grant the permissions for features you want to use:
+    - **Required for navigation**: Location permission
+    - **Required for document upload**: Storage/Photos permission
+    - **Optional**: Camera permission (you can use existing photos instead)
+
+    Core features like viewing maintenance schedules work without any special permissions.
+  </Accordion>
+
+  <Accordion title="Can I revoke permissions later?">
+    Yes. You can enable or disable any permission at any time through your device settings. If you revoke a permission, features that depend on it will stop working, but your data remains safe and other features continue to function.
+  </Accordion>
+
+  <Accordion title="Is my data safe?">
+    Yes. My Auto Guide:
+    - Only accesses data when you use specific features
+    - Does not run in the background unless you're actively navigating
+    - Stores all data securely in Supabase with encryption
+    - Does not share your location or documents with third parties
+    - Uses signed URLs with expiration for document access
+  </Accordion>
+
+  <Accordion title="Why does the app need internet permission?">
+    Internet access is required because My Auto Guide is a cloud-connected app. Your vehicle data is stored securely in Supabase (not just on your device), which allows you to:
+    - Access your data from any device
+    - Keep your documents backed up in the cloud
+    - Get real-time routing and map updates
+    - Sync maintenance schedules across devices
+  </Accordion>
+</AccordionGroup>
+
+## Privacy & Security
+
+### What We Collect
+
+- **Account Information**: Email address and authentication credentials (handled by Supabase Auth)
+- **Vehicle Data**: Information you enter about your vehicles (make, model, kilometrage, maintenance dates)
+- **Documents**: Photos and PDFs you upload for your vehicle documents
+- **Location Data**: GPS coordinates during active navigation sessions (not stored permanently)
+
+### What We Don't Collect
+
+- Persistent location tracking or location history
+- Access to other files on your device beyond what you select
+- Contact information, call logs, or messages
+- Photos or files you haven't explicitly selected to upload
+- Device identifiers for advertising purposes
+
+### Data Storage
+
+- All data is stored securely in Supabase with industry-standard encryption
+- Documents are stored in Supabase Storage with signed URLs that expire
+- Location data used for navigation is not permanently stored
+- Your data is only accessible when you're logged into your account
+
+<Warning>
+If you delete your account or vehicle, all associated data including documents is permanently removed and cannot be recovered.
+</Warning>
+
+## Troubleshooting Permission Issues
+
+If you're having trouble with permissions:
+
+1. **Check the [Troubleshooting Guide](/support/troubleshooting)** for platform-specific solutions
+2. **Verify permissions are enabled** using the instructions above
+3. **Restart the app** after granting new permissions
+4. **Restart your device** if permissions still don't work
+
+For detailed troubleshooting steps, see:
+- [GPS Not Working](/support/troubleshooting#gps-not-working--location-not-found)
+- [Cannot Upload Documents](/support/troubleshooting#cannot-upload-documents--upload-fails)
+- [Android Camera Permission Issues](/support/troubleshooting#android-camera-permission-issues)
+
+## Questions About Permissions?
+
+If you have concerns or questions about the permissions My Auto Guide requests:
+
+- Review our [Privacy Policy](#) for complete details on data handling
+- Check the [FAQ](/support/faq) for common questions
+- Contact us at privacy@myautoguide.com for specific privacy inquiries

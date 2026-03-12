@@ -1,0 +1,179 @@
+---
+title: 'Document Management'
+description: 'Store and access your vehicle documents securely in the cloud'
+icon: 'file-lines'
+---
+
+My Auto Guide provides secure cloud storage for all your important vehicle documents. Upload PDFs and images directly from your device, view them in the app, and access them anytime you need them.
+
+## Supported Document Types
+
+<CardGroup cols={2}>
+  <Card title="SOAT" icon="shield-halved">
+    Mandatory vehicle insurance (Seguro Obligatorio de Accidentes de Tránsito)
+  </Card>
+  <Card title="Technomechanical" icon="car-burst">
+    Technical-mechanical inspection certificate
+  </Card>
+  <Card title="Insurance" icon="file-shield">
+    Additional insurance policies for your vehicle
+  </Card>
+  <Card title="Property Card" icon="id-card">
+    Vehicle registration and ownership documentation
+  </Card>
+</CardGroup>
+
+## How to Upload Documents
+
+<Steps>
+  <Step title="Access Documents Section">
+    On your vehicle dashboard, locate the "Documentos" section with four document tiles displaying dotted borders.
+  </Step>
+  
+  <Step title="Select Document Type">
+    Tap on the document card you want to upload (SOAT, Tecno, Seguro, or T. Propied).
+  </Step>
+  
+  <Step title="Open Document Manager">
+    A bottom sheet opens showing all documents currently stored for that type, with an "Agregar archivo" (Add file) button at the top.
+  </Step>
+  
+  <Step title="Choose Your File">
+    Tap "Agregar archivo" to open the file picker. You can select:
+    - **PDFs**: For official documents
+    - **Images**: JPG, JPEG, PNG, WebP, HEIC, GIF
+    
+    Files can be selected from:
+    - Your device's camera (take a photo)
+    - Photo gallery
+    - File manager
+  </Step>
+  
+  <Step title="Upload to Cloud">
+    The file uploads to Supabase Storage automatically. A thumbnail appears in the document manager and on the main dashboard card.
+  </Step>
+</Steps>
+
+<Info>
+Each document type has its own dedicated folder in cloud storage, organized by your vehicle ID for security and privacy.
+</Info>
+
+## Viewing Documents
+
+The app includes built-in viewers for seamless document access:
+
+### Image Viewer
+- **Tap any image** thumbnail to open it in full-screen mode
+- Powered by PhotoView for pinch-to-zoom functionality
+- Smooth panning and rotation support
+- High-resolution image display
+
+### PDF Viewer
+- **Tap any PDF** thumbnail to open the document
+- Uses Syncfusion Flutter PDF Viewer for professional rendering
+- Scroll through multi-page documents
+- Zoom and navigate pages easily
+- Fast loading and smooth performance
+
+<Tip>
+Long-press any document thumbnail to open it in your device's default external viewer or share it with other apps.
+</Tip>
+
+## Managing Your Documents
+
+### View All Files
+
+The document manager displays all files in a **3-column grid**:
+- **PDF files** show a red PDF icon
+- **Images** display a thumbnail preview
+- Each tile shows the filename at the bottom
+
+### Delete Documents
+
+To remove a document:
+
+1. Tap the **trash icon** in the top-right corner of any document thumbnail
+2. Confirm deletion in the dialog
+3. The file is permanently removed from cloud storage
+4. The dashboard card updates to show the empty state
+
+<Warning>
+Deleting a document is permanent and cannot be undone. Make sure you have a backup before removing important files.
+</Warning>
+
+## Dashboard Display
+
+On the main dashboard, each document type appears as a compact card with:
+
+- **Dotted border**: Indicates the card is interactive
+- **Icon indicator**:
+  - 🔵 Cloud upload icon: No document uploaded yet
+  - 📄 PDF icon: PDF document is stored
+  - 🖼️ Image thumbnail: Photo/scan is stored
+- **Label**: Document type name
+- **Tap action**: Opens document manager
+- **Long-press action**: Opens the stored document in external viewer
+
+## Cloud Storage Integration
+
+Documents are stored in **Supabase Storage** with enterprise-grade security:
+
+### Storage Structure
+```
+vehiculos-docs/
+  ├── {vehicle-id}/
+  │   ├── soat/
+  │   │   └── 1234567890.pdf
+  │   ├── tecno/
+  │   │   └── 1234567891.jpg
+  │   ├── seguro/
+  │   │   └── 1234567892.pdf
+  │   └── propiedad/
+  │       └── 1234567893.png
+```
+
+### Security Features
+
+- **User authentication required**: Only logged-in users can access documents
+- **Signed URLs**: Temporary access links expire after 1 hour for security
+- **URL caching**: The app caches signed URLs for 58 minutes to reduce API calls
+- **Private storage**: Each vehicle's documents are isolated by unique ID
+
+<Note>
+The app automatically refreshes document URLs before they expire, ensuring seamless access without manual intervention.
+</Note>
+
+## File Upload Process
+
+When you upload a document:
+
+1. **File selection**: The app opens the platform's native file picker
+2. **Read file data**: Converts the file to bytes for upload
+3. **Generate unique name**: Uses timestamp + file extension (e.g., `1234567890.pdf`)
+4. **Upload to Supabase**: Binary data is transferred to cloud storage
+5. **Update database**: The vehicle record is updated with the file path
+6. **Generate signed URL**: A temporary access URL is created and cached
+7. **Update UI**: The dashboard reflects the new document immediately
+
+## Supported File Formats
+
+| Format | Extension | Max Size | Use Case |
+|--------|-----------|----------|----------|
+| PDF | `.pdf` | Unlimited | Official documents, certificates |
+| JPEG | `.jpg`, `.jpeg` | Unlimited | Scanned documents, photos |
+| PNG | `.png` | Unlimited | Screenshots, high-quality scans |
+| WebP | `.webp` | Unlimited | Modern compressed images |
+| HEIC | `.heic` | Unlimited | iPhone photos |
+| GIF | `.gif` | Unlimited | Animated or static images |
+
+<Tip>
+For best results, use PDF format for official documents and JPG/PNG for photos. This ensures compatibility and optimal storage usage.
+</Tip>
+
+## Quick Actions
+
+- **Tap document card** → Opens manager with all files
+- **Tap thumbnail in manager** → Opens full-screen viewer
+- **Long-press thumbnail** → Opens in external app
+- **Tap trash icon** → Deletes document with confirmation
+- **Tap "Agregar archivo"** → Opens file picker for upload

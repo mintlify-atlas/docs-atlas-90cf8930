@@ -1,80 +1,245 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with My Auto Guide in 5 minutes
 ---
 
-## Get started in three steps
+# Quickstart Guide
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through setting up My Auto Guide and adding your first vehicle in just a few minutes.
 
-### Step 1: Set up your local environment
+## What You'll Accomplish
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+By the end of this quickstart, you'll have:
 
-### Step 2: Deploy your changes
+- Created your My Auto Guide account
+- Added your first vehicle (car or motorcycle)
+- Configured maintenance schedules
+- Uploaded your first vehicle document
+- Set up notifications for upcoming maintenance
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+## Prerequisites
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+Before you begin, make sure you have:
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+- An Android (5.0+) or iOS (12.0+) device
+- Internet connection for initial setup
+- Your vehicle information handy (license plate, mileage, etc.)
+- At least one vehicle document (SOAT, insurance, etc.)
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+My Auto Guide requires certain permissions (GPS, Camera, Storage) to function properly. You'll be prompted to grant these during setup.
 </Note>
+
+## Step 1: Install the App
+
+<Steps>
+  <Step title="Download My Auto Guide">
+    Download the app from your device's app store:
+    
+    - **Android**: Google Play Store
+    - **iOS**: Apple App Store
+    
+    Or build from source if you're a developer. See the [Installation Guide](/installation) for detailed instructions.
+  </Step>
+
+  <Step title="Grant Required Permissions">
+    When you first open the app, you'll be asked to grant permissions:
+    
+    - **Location**: Required for GPS navigation
+    - **Camera**: Required to photograph documents and vehicles
+    - **Storage**: Required to save and manage documents
+    
+    Tap **Allow** for each permission to enable full functionality.
+  </Step>
+</Steps>
+
+## Step 2: Create Your Account
+
+<Steps>
+  <Step title="Launch the app">
+    Open My Auto Guide on your device. You'll see the login screen with the app logo and sign-in options.
+  </Step>
+
+  <Step title="Sign up with email">
+    1. Tap **Sign Up** or **Create Account**
+    2. Enter your email address and create a strong password
+    3. Tap **Register** or **Create Account**
+    4. Check your email for a verification link
+    5. Click the verification link to activate your account
+    6. Return to the app and log in with your credentials
+  </Step>
+</Steps>
+
+<Info>
+Your data is securely stored with Supabase, a trusted backend platform. Your password is encrypted and never stored in plain text.
+</Info>
+
+## Step 3: Add Your First Vehicle
+
+<Steps>
+  <Step title="Start adding a vehicle">
+    After logging in, you'll see the main dashboard. Tap the **Add Vehicle** button or the **+** icon to begin.
+  </Step>
+
+  <Step title="Choose vehicle type">
+    Select whether you're adding a:
+    - **Motorcycle** (Yamaha, Suzuki, BMW, Kawasaki, Honda, Ducati, KTM, Bajaj, Hero, AKT)
+    - **Car** (Toyota, Mazda, Chevrolet, and more)
+  </Step>
+
+  <Step title="Select brand and model">
+    1. Choose your vehicle's brand from the list
+    2. Browse the visual model catalog
+    3. Select your specific model
+    4. If your exact model isn't listed, choose the closest match
+  </Step>
+
+  <Step title="Enter vehicle details">
+    Fill in the required information:
+    
+    - **License Plate**: Your vehicle's registration number
+    - **Current Mileage**: Current odometer reading in kilometers
+    - **Year**: Model year of your vehicle
+    - **Nickname** (optional): A friendly name like "My Blue Bike" or "Family Car"
+    
+    <Tip>
+    Enter accurate mileage - this is crucial for maintenance tracking and will be automatically updated when you use GPS navigation.
+    </Tip>
+  </Step>
+
+  <Step title="Save your vehicle">
+    Review your information and tap **Save** or **Add Vehicle**. Your vehicle will now appear on the dashboard!
+  </Step>
+</Steps>
+
+## Step 4: Configure Maintenance Schedules
+
+<Steps>
+  <Step title="Open maintenance settings">
+    From your vehicle's dashboard, tap the **Maintenance** or **Settings** button to configure when you last performed each service.
+  </Step>
+
+  <Step title="Set last maintenance dates">
+    For each maintenance type, tap to select the date you last performed it:
+    
+    - **Chain Lubrication**: When you last lubricated the chain (motorcycles only, every 15 days)
+    - **Air Filter**: Last air filter change (every 90 days)
+    - **Oil Change**: Last oil and filter change (every 25 days)
+    - **SOAT**: Last SOAT renewal date (annual)
+    - **Technomechanical**: Last inspection date (annual)
+    
+    <Info>
+    Don't worry if you don't remember the exact dates - use your best estimate. The app will calculate remaining time from these dates.
+    </Info>
+  </Step>
+
+  <Step title="Save configuration">
+    Tap **Save** to update your maintenance schedule. The app will immediately calculate and display:
+    
+    - Percentage of time remaining for each service
+    - Color-coded indicators (green, yellow, or red)
+    - Automatic notifications when services are due
+  </Step>
+</Steps>
+
+<Note>
+The app uses these maintenance intervals:
+- Chain lubrication: 15 days
+- Air filter: 90 days  
+- Oil change: 25 days
+- SOAT: 365 days
+- Technomechanical: 365 days
+</Note>
+
+## Step 5: Upload Your First Document
+
+<Steps>
+  <Step title="Navigate to documents">
+    On your vehicle dashboard, scroll to the **Documents** section. You'll see cards for:
+    - SOAT
+    - Technomechanical Inspection
+    - Insurance
+    - Property Card
+  </Step>
+
+  <Step title="Choose a document to upload">
+    Tap on any document card (e.g., **SOAT**) to begin uploading.
+  </Step>
+
+  <Step title="Select upload method">
+    Choose how to add your document:
+    
+    - **Take Photo**: Use your camera to photograph the physical document
+    - **Choose from Gallery**: Select an existing photo or PDF from your device
+    
+    <Tip>
+    For best results when photographing documents, ensure good lighting and hold the camera steady for a clear image.
+    </Tip>
+  </Step>
+
+  <Step title="Upload and verify">
+    After selecting your file:
+    1. The app uploads it securely to cloud storage
+    2. A checkmark appears on the document card
+    3. Tap the card again to view your uploaded document
+  </Step>
+</Steps>
+
+<Info>
+Supported formats: PDF, JPG, JPEG, PNG, WEBP, HEIC, GIF. Maximum recommended file size: 10MB.
+</Info>
+
+## What's Next?
+
+Congratulations! You've set up My Auto Guide and added your first vehicle. Here's what you can explore next:
+
+<CardGroup cols={2}>
+  <Card title="GPS Navigation" icon="map-location-dot" href="/features/gps-navigation">
+    Use OpenStreetMap navigation with automatic mileage tracking
+  </Card>
+  
+  <Card title="Maintenance Tracking" icon="wrench" href="/features/maintenance-tracking">
+    Learn more about the color-coded maintenance system
+  </Card>
+  
+  <Card title="RUNT Integration" icon="globe" href="/guides/runt-integration">
+    Access official vehicle information from RUNT
+  </Card>
+  
+  <Card title="Guides & Manuals" icon="book" href="/guides/manuals-videos">
+    View PDF manuals and YouTube tutorials
+  </Card>
+</CardGroup>
+
+## Tips for Success
+
+<Tip>
+**Enable Notifications**: Make sure app notifications are enabled in your device settings to receive timely maintenance reminders.
+</Tip>
+
+<Tip>
+**Update Regularly**: After each service, update the maintenance date to keep your tracking accurate.
+</Tip>
+
+<Tip>
+**Use GPS Navigation**: The app automatically updates your vehicle's mileage when you complete GPS-tracked trips.
+</Tip>
+
+## Need Help?
+
+If you encounter any issues:
+
+- Check the [Troubleshooting Guide](/support/troubleshooting)
+- Review [Permissions](/support/permissions) if features aren't working
+- Browse the [FAQ](/support/faq) for common questions
+- Review the [Installation Guide](/installation) for detailed setup instructions
+
+<CardGroup cols={2}>
+  <Card title="FAQ" icon="circle-question" href="/support/faq">
+    Answers to common questions
+  </Card>
+  
+  <Card title="Troubleshooting" icon="screwdriver-wrench" href="/support/troubleshooting">
+    Solutions to common issues
+  </Card>
+</CardGroup>

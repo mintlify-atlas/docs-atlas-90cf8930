@@ -1,0 +1,589 @@
+---
+title: Authentication
+description: Supabase authentication implementation, session management, and security practices
+---
+
+## Overview
+
+My Auto Guide uses **Supabase Auth** for user authentication, providing secure email/password authentication with email verification. The authentication system handles user registration, login, password recovery, and session persistence.
+
+## Authentication Architecture
+
+### Initialization
+
+Supabase Auth is initialized in `main.dart:47` during application startup:
+
+```dart
+await Supabase.initialize(
+  url: 'https://xstzerpnupubyfbhrrzu.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+);
+```
+
+The anonymous key (`anonKey`) allows the client to connect to Supabase while Row Level Security (RLS) policies protect user data.
+
+### Supabase Client Instance
+
+Each screen accesses Supabase through a singleton client:
+
+```dart
+final SupabaseClient supabase = Supabase.instance.client;
+```
+
+Reference: `login_screen.dart:38`
+
+## User Registration Flow
+
+### Registration Process
+
+Implemented in `registro_screen.dart:48`:
+
+```dart
+Future<void> signUp() async {
+  final password = passwordController.text.trim();
+  final confirmPassword = confirmPasswordController.text.trim();
+
+  // 1. Validate password match
+  if (password != confirmPassword) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Las contraseñas no coinciden')),
+    );
+    return;
+  }
+
+  setState(() => isLoading = true);
+
+  try {
+    // 2. Create account with Supabase Auth
+    await supabase.auth.signUp(
+      email: emailController.text.trim(),
+      password: password,
+    );
+
+    // 3. Show success message with resend option
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Registro enviado. Revisa tu correo y confirma la cuenta para continuar.',
+        ),
+        action: SnackBarAction(
+          label: 'Reenviar',
+          onPressed: () async {
+            await supabase.auth.resend(
+              type: OtpType.signup,
+              email: emailController.text.trim(),
+            );
+          },
+        ),
+      ),
+    );
+
+    // 4. Start monitoring for email confirmation
+    _startConfirmationWatch(
+      email: emailController.text.trim(),
+      password: password,
+    );
+  } on AuthException catch (e) {
+    // Handle errors (duplicate email, invalid format, etc.)
+  }
+}
+```
+
+### Email Verification
+
+The application requires email confirmation before allowing login. A polling mechanism checks for verification:
+
+```dart
+void _startConfirmationWatch({required String email, required String password}) {
+  setState(() {
+    waitingForConfirm = true;
+    secondsLeft = 60;
+  });
+
+  _timer = Timer.periodic(const Duration(seconds: 1), (t) async {
+    setState(() => secondsLeft--);
+
+    // Try login every 5 seconds to detect confirmation
+    if (secondsLeft % 5 == 0 && secondsLeft > 0) {
+      try {
+        final res = await supabase.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+        if (res.session != null && res.user != null) {
+          t.cancel();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Correo verificado. Inicia sesión para continuar.'),
+            ),
+          );
+          Navigator.pop(context); // Return to login
+        }
+      } on AuthException {
+        // Continue waiting
+      }
+    }
+
+    // Timeout after 60 seconds
+    if (secondsLeft <= 0) {
+      t.cancel();
+      setState(() => canSwitchEmail = true);
+    }
+  });
+}
+```
+
+Reference: `registro_screen.dart:149`
+
+### Handling Duplicate Emails
+
+If a user tries to register with an existing email:
+
+```dart
+on AuthException catch (e) {
+  final msg = (e.message ?? '').toLowerCase();
+  if (msg.contains('already') || msg.contains('exists')) {
+    // Resend verification email
+    await supabase.auth.resend(
+      type: OtpType.signup,
+      email: emailController.text.trim(),
+    );
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Este correo ya existe pero puede no estar confirmado. '
+          'Revisa tu bandeja o usa "Reenviar".',
+        ),
+      ),
+    );
+  }
+}
+```
+
+Reference: `registro_screen.dart:108`
+
+## Login Flow
+
+### Authentication Process
+
+Implemented in `login_screen.dart:99`:
+
+```dart
+Future<void> signIn() async {
+  setState(() => isLoading = true);
+  
+  try {
+    final res = await supabase.auth.signInWithPassword(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+    );
+
+    if (res.session != null && res.user != null) {
+      await _goToDestination();
+    }
+  } on AuthException catch (e) {
+    final msg = (e.message ?? '').toLowerCase();
+
+    // Handle unconfirmed email
+    if (msg.contains('not confirmed')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Tu correo no está confirmado. '
+            'Revisa tu bandeja o reenvía el correo de verificación.',
+          ),
+          action: SnackBarAction(
+            label: 'Reenviar',
+            onPressed: () async {
+              await supabase.auth.resend(
+                type: OtpType.signup,
+                email: emailController.text.trim(),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Other errors (invalid credentials, etc.)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: ${e.message}')),
+    );
+  } finally {
+    if (mounted) setState(() => isLoading = false);
+  }
+}
+```
+
+### Post-Login Navigation
+
+After successful authentication, the app determines where to navigate based on vehicle ownership:
+
+```dart
+Future<void> _goToDestination() async {
+  final user = supabase.auth.currentUser;
+  if (user == null) return;
+
+  try {
+    // Check if user has any vehicles
+    final List data = await supabase
+      .from('vehiculos')
+      .select('id')
+      .eq('user_id', user.id)
+      .order('created_at', ascending: false)
+      .limit(1);
+
+    if (data.isNotEmpty) {
+      // User has vehicles - go to dashboard
+      final String vehiculoId = (data.first as Map)['id'] as String;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => InicioApp(vehiculoId: vehiculoId),
+        ),
+      );
+    } else {
+      // No vehicles - go to add vehicle screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AgregarVehiculoScreen(),
+        ),
+      );
+    }
+  } on PostgrestException catch (e) {
+    // On error, default to add vehicle screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AgregarVehiculoScreen(),
+      ),
+    );
+  }
+}
+```
+
+Reference: `login_screen.dart:62`
+
+## Session Management
+
+### Auto-Login
+
+Supabase automatically persists sessions. On app startup, the login screen checks for an existing session:
+
+```dart
+@override
+void initState() {
+  super.initState();
+  _bootstrapSession(); // Check for existing session
+}
+
+Future<void> _bootstrapSession() async {
+  final session = supabase.auth.currentSession;
+  if (session == null) return; // No saved session
+  
+  if (!mounted) return;
+  await _goToDestination(); // Auto-navigate if session exists
+}
+```
+
+Reference: `login_screen.dart:47`
+
+### Session Persistence
+
+Supabase Auth handles session persistence automatically:
+- Session tokens are stored securely in platform-specific storage
+- Sessions are refreshed automatically before expiration
+- No manual token management required
+
+### Current User Access
+
+Access the authenticated user anywhere in the app:
+
+```dart
+final user = supabase.auth.currentUser;
+if (user != null) {
+  final userId = user.id;
+  final email = user.email;
+}
+```
+
+Example usage in `login_screen.dart:63`
+
+### Session Validation
+
+Before sensitive operations, validate the session:
+
+```dart
+final user = supabase.auth.currentUser;
+if (user == null) {
+  throw Exception('Usuario no autenticado');
+}
+```
+
+Reference: `inicio_app.dart:120`
+
+## Password Recovery
+
+### Reset Password Flow
+
+Implemented in `login_screen.dart:162`:
+
+```dart
+Future<void> sendPasswordReset() async {
+  final email = emailController.text.trim();
+  
+  if (email.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Ingresa tu e-mail para recuperar la contraseña.'),
+      ),
+    );
+    return;
+  }
+
+  try {
+    await supabase.auth.resetPasswordForEmail(email);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Te enviamos un enlace para restablecer tu contraseña.',
+        ),
+      ),
+    );
+  } on AuthException catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al enviar recuperación: ${e.message}')),
+    );
+  }
+}
+```
+
+## Logout
+
+### Sign Out Implementation
+
+Implemented in `inicio_app.dart:150`:
+
+```dart
+Future<void> _cerrarSesion() async {
+  await supabase.auth.signOut();
+  if (!mounted) return;
+  
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const CarRentalLoginScreen(),
+    ),
+  );
+}
+```
+
+This:
+1. Clears the session from secure storage
+2. Invalidates the current session token
+3. Navigates back to the login screen
+
+## Security Considerations
+
+### Row Level Security (RLS)
+
+Supabase RLS ensures users can only access their own data:
+
+```sql
+-- Users can only select their own vehicles
+CREATE POLICY "Users can view own vehicles"
+ON vehiculos FOR SELECT
+USING (auth.uid() = user_id);
+
+-- Users can only insert vehicles for themselves
+CREATE POLICY "Users can insert own vehicles"
+ON vehiculos FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Users can only update their own vehicles
+CREATE POLICY "Users can update own vehicles"
+ON vehiculos FOR UPDATE
+USING (auth.uid() = user_id);
+
+-- Users can only delete their own vehicles
+CREATE POLICY "Users can delete own vehicles"
+ON vehiculos FOR DELETE
+USING (auth.uid() = user_id);
+```
+
+### Storage Security
+
+Supabase Storage buckets should have RLS policies:
+
+```sql
+-- Users can only upload to their vehicle folders
+CREATE POLICY "Users can upload own vehicle documents"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'vehiculos-docs' AND
+  (storage.foldername(name))[1] IN (
+    SELECT id::text FROM vehiculos WHERE user_id = auth.uid()
+  )
+);
+
+-- Users can only read their vehicle documents
+CREATE POLICY "Users can read own vehicle documents"
+ON storage.objects FOR SELECT
+USING (
+  bucket_id = 'vehiculos-docs' AND
+  (storage.foldername(name))[1] IN (
+    SELECT id::text FROM vehiculos WHERE user_id = auth.uid()
+  )
+);
+```
+
+### API Key Security
+
+**Important**: The `anonKey` in the source code is a public key and is safe to expose in client applications. However:
+
+- Never commit the **service role key** to version control
+- Use environment variables for sensitive keys in production
+- Rely on RLS policies for data protection, not key secrecy
+
+### Best Practices
+
+1. **Always validate user sessions** before sensitive operations:
+   ```dart
+   final user = supabase.auth.currentUser;
+   if (user == null) throw Exception('Not authenticated');
+   ```
+
+2. **Use RLS policies** instead of client-side filtering:
+   ```dart
+   // Good: RLS automatically filters
+   await supabase.from('vehiculos').select();
+   
+   // Bad: Client-side filtering is insecure
+   await supabase.from('vehiculos').select().eq('user_id', user.id);
+   ```
+
+3. **Handle auth errors gracefully**:
+   ```dart
+   on AuthException catch (e) {
+     // Show user-friendly messages
+     ScaffoldMessenger.of(context).showSnackBar(
+       SnackBar(content: Text('Error: ${e.message}')),
+     );
+   }
+   ```
+
+4. **Require email verification** to prevent fake accounts
+
+5. **Use signed URLs** for temporary file access:
+   ```dart
+   final signedUrl = await supabase.storage
+     .from('vehiculos-docs')
+     .createSignedUrl(path, 3600); // Valid for 1 hour
+   ```
+
+## Social Authentication (Placeholder)
+
+The login screen includes placeholder buttons for social login:
+
+```dart
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    IconButton(
+      icon: Image.asset('assets/google.png'),
+      iconSize: 40,
+      onPressed: () {}, // Not implemented
+    ),
+    IconButton(
+      icon: Image.asset('assets/facebook.png'),
+      iconSize: 40,
+      onPressed: () {}, // Not implemented
+    ),
+    IconButton(
+      icon: Image.asset('assets/apple.png'),
+      iconSize: 40,
+      onPressed: () {}, // Not implemented
+    ),
+  ],
+)
+```
+
+Reference: `login_screen.dart:329`
+
+To implement social authentication:
+
+```dart
+// Google Sign-In example
+final response = await supabase.auth.signInWithOAuth(
+  Provider.google,
+  redirectTo: 'myapp://login-callback',
+);
+```
+
+## Authentication Flow Diagram
+
+```
+[App Start]
+    |
+    v
+[Check Session]
+    |
+    +-- Session exists --> [Auto-navigate to Dashboard/Add Vehicle]
+    |
+    +-- No session --> [Show Login Screen]
+                           |
+                           +-- [Register] --> [Email Verification]
+                           |                      |
+                           |                      v
+                           |                  [Confirmation Polling]
+                           |                      |
+                           |                      v
+                           |                  [Return to Login]
+                           |
+                           +-- [Login] --> [Validate Credentials]
+                           |                   |
+                           |                   +-- Success --> [Check Vehicles]
+                           |                   |                   |
+                           |                   |                   +-- Has vehicles --> [Dashboard]
+                           |                   |                   |
+                           |                   |                   +-- No vehicles --> [Add Vehicle]
+                           |                   |
+                           |                   +-- Error --> [Show Error Message]
+                           |
+                           +-- [Forgot Password] --> [Send Reset Email]
+```
+
+## Testing Authentication
+
+### Manual Testing Checklist
+
+- [ ] Register new account with valid email
+- [ ] Verify email confirmation is required
+- [ ] Test duplicate email registration
+- [ ] Test login with correct credentials
+- [ ] Test login with incorrect credentials
+- [ ] Test login with unverified email
+- [ ] Test password recovery flow
+- [ ] Test session persistence (close and reopen app)
+- [ ] Test logout functionality
+- [ ] Test auto-navigation based on vehicle ownership
+
+### Common Issues
+
+**Issue**: "Email not confirmed" error
+- **Solution**: Check spam folder for confirmation email, use resend functionality
+
+**Issue**: Session not persisting
+- **Solution**: Ensure Supabase is initialized before accessing auth
+
+**Issue**: RLS policy errors
+- **Solution**: Verify policies are enabled on Supabase dashboard
+
+## Next Steps
+
+- [Project Structure](/development/project-structure) - Codebase organization
+- [Database Schema](/development/database-schema) - Data structure and storage

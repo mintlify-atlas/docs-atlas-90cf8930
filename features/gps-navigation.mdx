@@ -1,0 +1,258 @@
+---
+title: 'GPS Navigation'
+description: 'Navigate to your destination and track your mileage automatically'
+icon: 'location-dot'
+---
+
+My Auto Guide includes a full-featured GPS navigation system that helps you reach your destination while automatically tracking your vehicle's mileage. Built entirely with free and open-source technologies, it rivals commercial navigation apps.
+
+## Technology Stack
+
+<CardGroup cols={2}>
+  <Card title="OpenStreetMap" icon="map">
+    High-quality, community-driven map data with CartoDB Voyager tiles for beautiful visualization
+  </Card>
+  <Card title="Nominatim" icon="magnifying-glass-location">
+    Free geocoding service for searching addresses and points of interest
+  </Card>
+  <Card title="OSRM" icon="route">
+    Open Source Routing Machine calculates optimal driving routes with turn-by-turn directions
+  </Card>
+  <Card title="Geolocator" icon="satellite-dish">
+    Real-time GPS tracking with high accuracy positioning
+  </Card>
+</CardGroup>
+
+## Navigation Modes
+
+The app offers two distinct navigation modes:
+
+### Destination-Based Navigation
+
+Search for a specific destination and follow the calculated route:
+- **Search any location**: Cities, addresses, businesses, landmarks
+- **Optimized routing**: Fastest route calculated automatically
+- **Turn-by-turn guidance**: Visual route on the map
+- **Distance preview**: See total kilometers before starting
+- **Time estimate**: Know how long your trip will take
+- **Auto-complete**: Automatic mileage update upon arrival
+
+### Free Tracking Mode
+
+Track your mileage without a specific destination:
+- **No destination required**: Just hit "Iniciar Recorrido Libre"
+- **Real-time tracking**: Follow your path as you drive
+- **Precise mileage**: Every meter is tracked and recorded
+- **Manual completion**: End tracking whenever you want
+- **Automatic updates**: Mileage saves to your vehicle on completion
+
+<Info>
+Free Tracking Mode is perfect for road trips, test drives, or when you're driving locally without a fixed destination.
+</Info>
+
+## How to Navigate
+
+<Steps>
+  <Step title="Open Navigation">
+    From your vehicle dashboard, tap the "Rutas" button in the Tools section. The app requests GPS permissions and loads the map centered on your current location.
+  </Step>
+  
+  <Step title="Search for Destination">
+    Type your destination in the search bar at the top. Results appear as you type, showing:
+    - Full address
+    - City and region
+    - Distance from your location
+    - Location pin icon
+  </Step>
+  
+  <Step title="Select Your Destination">
+    Tap any search result to select it. The destination appears on the map with a **red flag marker**, and the app automatically traces the optimal route.
+  </Step>
+  
+  <Step title="Review Route Information">
+    The bottom panel displays:
+    - **Distance**: Total kilometers for the route
+    - **Time**: Estimated travel time in minutes
+    - **Destination name**: Full address shown at the top
+    
+    The route appears as a **blue line** on the map.
+  </Step>
+  
+  <Step title="Start Navigation">
+    Tap the green "Iniciar ruta" button. The navigation begins:
+    - Your position is marked with a **blue navigation arrow**
+    - GPS tracking activates with high accuracy
+    - The map follows your movement in real-time
+    - The route changes from blue to **green** as you travel it
+  </Step>
+  
+  <Step title="Reach Your Destination">
+    When you arrive (within 50 meters of the destination), navigation automatically completes:
+    - A completion dialog appears
+    - Your vehicle's mileage updates in the database
+    - You see total kilometers traveled
+    - New mileage is displayed
+  </Step>
+</Steps>
+
+## Free Tracking Mode
+
+For trips without a specific destination:
+
+<Steps>
+  <Step title="Start Free Tracking">
+    From the idle map view, tap the blue "Iniciar Recorrido Libre" button at the bottom.
+  </Step>
+  
+  <Step title="Drive Anywhere">
+    The app tracks your position continuously:
+    - **Green path** shows where you've traveled
+    - **Real-time distance** displays in the top bar
+    - Map follows your movement automatically
+  </Step>
+  
+  <Step title="Finish Tracking">
+    Tap the red "Finalizar recorrido" button when done. Confirm in the dialog, and your mileage updates instantly.
+  </Step>
+</Steps>
+
+<Tip>
+Use Free Tracking Mode for daily commutes, errands, or any time you want to track mileage without planning a specific route.
+</Tip>
+
+## Map Features
+
+### Interactive Map Controls
+
+- **Pinch to zoom**: Zoom in/out with two fingers
+- **Pan to move**: Drag the map to explore
+- **My Location button**: Floating button to center on your position (lower-right corner)
+- **Auto-follow**: During navigation, the map automatically centers on you
+- **Rotate**: Two-finger rotation to change map orientation
+
+### Visual Indicators
+
+| Element | Description |
+|---------|-------------|
+| 🔵 Blue arrow | Your current position and heading |
+| 🚩 Red flag | Your destination marker |
+| 🔷 Blue line | Planned route before starting |
+| 🟢 Green line | Path you've already traveled |
+| 🔵 Pulsing circle | GPS accuracy indicator around your position |
+
+## Navigation Bar
+
+### Idle State
+- Back button (left)
+- Search bar with magnifying glass icon
+- Clear button when text is entered
+- Loading spinner during search
+
+### Navigating State
+- Green or blue-gray pill showing:
+  - Navigation icon
+  - Current mode ("Navegando" or "Modo Libre")
+  - Real-time distance traveled
+
+## Route Calculation
+
+When you select a destination, the app:
+
+1. **Queries OSRM**: Sends your current location and destination to the routing engine
+2. **Receives route geometry**: Gets coordinates for the optimal path
+3. **Parses GeoJSON**: Converts routing data to map points
+4. **Calculates metrics**: Determines total distance and estimated time
+5. **Draws on map**: Renders the blue route line
+6. **Fits bounds**: Automatically zooms to show entire route
+
+<Note>
+OSRM routing considers real road networks, one-way streets, and typical speeds for each road type to provide accurate routes.
+</Note>
+
+## Mileage Tracking
+
+The app uses precise distance calculation:
+
+```dart
+const distance = Distance();
+final segmentMeters = distance.as(LengthUnit.Meter, lastPos, newPos);
+final segmentKm = segmentMeters / 1000.0;
+```
+
+- **High-precision GPS**: 5-meter filter for position updates
+- **Haversine formula**: Calculates exact distance between GPS points
+- **Cumulative tracking**: Adds each segment to total distance
+- **Sub-kilometer accuracy**: Tracks down to individual meters
+
+### Automatic Mileage Updates
+
+When navigation completes:
+
+1. App retrieves current mileage from database
+2. Rounds traveled distance to nearest kilometer
+3. Adds traveled distance to current mileage
+4. Updates the `vehiculos` table in Supabase
+5. Shows completion dialog with new mileage
+
+<Warning>
+Ensure GPS and location permissions are enabled for accurate tracking. Navigation won't work without location access.
+</Warning>
+
+## Bottom Panel Information
+
+### Route Ready
+- 📏 Distance chip (blue): Total route length
+- ⏱️ Time chip (orange): Estimated duration
+- 🚩 Destination name with flag icon
+- "Iniciar ruta" button (green)
+- "Cancelar" button (outline)
+
+### Navigating
+- 📏 Distance chip: Original route length
+- ⏱️ Time chip: Estimated time remaining
+- 🚴 Traveled chip (green): Actual distance covered
+- "Finalizar recorrido" button (red)
+
+### Free Tracking
+- 🛣️ Distance chip (green): Distance traveled
+- 🎯 "Seguimiento de Kilometraje Libre" title
+- "Finalizar recorrido" button (red)
+
+## Manual Completion
+
+You can end navigation anytime by tapping "Finalizar recorrido":
+
+- A confirmation dialog shows your current distance
+- Tap "Finalizar" to save mileage and return to dashboard
+- Tap "Cancelar" to continue navigating
+
+## Error Handling
+
+The app gracefully handles common issues:
+
+- **No GPS signal**: Prompts to enable location services
+- **Permission denied**: Shows alert to grant location access
+- **Routing failure**: Displays error message and allows retry
+- **No network**: Offline maps continue working; routing requires internet
+
+<Tip>
+For best results, ensure you have a stable internet connection before starting navigation. The map tiles and route calculation require network access.
+</Tip>
+
+## Search Capabilities
+
+The Nominatim geocoding service supports:
+
+- **Addresses**: Street names, house numbers, postal codes
+- **Cities and regions**: Navigate to entire cities
+- **Businesses**: Restaurants, hotels, gas stations
+- **Landmarks**: Parks, monuments, tourist attractions
+- **Coordinates**: Enter lat/lng directly
+
+## Privacy & Data
+
+- **No third-party tracking**: All navigation uses open services
+- **Local processing**: GPS data stays on your device
+- **Minimal uploads**: Only final mileage updates go to the server
+- **No route history**: Past routes are not stored
+- **Anonymous usage**: OpenStreetMap and OSRM don't track users

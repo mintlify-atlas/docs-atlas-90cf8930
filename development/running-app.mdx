@@ -1,0 +1,447 @@
+---
+title: "Running the App"
+description: "Build and run My Auto Guide on emulators and physical devices"
+---
+
+## Clone the Repository
+
+First, clone the My Auto Guide repository to your local machine.
+
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd my_auto_guide
+```
+
+<Note>
+  Replace `<YOUR_REPOSITORY_URL>` with the actual Git repository URL
+</Note>
+
+## Install Dependencies
+
+Install all required Flutter packages defined in `pubspec.yaml`.
+
+```bash
+flutter pub get
+```
+
+This will download and install all dependencies including:
+- `supabase_flutter` - Backend services
+- `flutter_map` - OpenStreetMap integration
+- `geolocator` - GPS location services
+- `image_picker` - Photo capture
+- `flutter_local_notifications` - Maintenance reminders
+- And many more (see pubspec.yaml for complete list)
+
+## Configure Environment
+
+Before running the app, ensure you've completed the configuration steps:
+
+<Steps>
+  <Step title="Supabase credentials">
+    Update `lib/main.dart` with your Supabase URL and anon key
+    
+    ```dart lib/main.dart
+    await Supabase.initialize(
+      url: 'YOUR_SUPABASE_PROJECT_URL',
+      anonKey: 'YOUR_SUPABASE_ANON_KEY',
+    );
+    ```
+    
+    See [Supabase Configuration](/development/supabase-configuration) for details
+  </Step>
+  
+  <Step title="Verify permissions">
+    Ensure all required permissions are configured:
+    - Android: Check `android/app/src/main/AndroidManifest.xml`
+    - iOS: Check `ios/Runner/Info.plist` (if developing for iOS)
+  </Step>
+</Steps>
+
+## Run on Emulator/Simulator
+
+### Android Emulator
+
+<Steps>
+  <Step title="Start Android Emulator">
+    <CodeGroup>
+    
+    ```bash Android Studio
+    # Open Android Studio → AVD Manager → Start an emulator
+    # Or use command line:
+    emulator -list-avds
+    emulator -avd <avd_name>
+    ```
+    
+    ```bash VS Code
+    # Press Cmd/Ctrl + Shift + P
+    # Type "Flutter: Select Device"
+    # Choose an Android emulator from the list
+    ```
+    
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Verify device is connected">
+    ```bash
+    flutter devices
+    ```
+    
+    You should see your Android emulator listed
+  </Step>
+  
+  <Step title="Run the app">
+    ```bash
+    flutter run
+    ```
+    
+    Or press **F5** in VS Code / Android Studio
+  </Step>
+</Steps>
+
+### iOS Simulator (macOS only)
+
+<Steps>
+  <Step title="Start iOS Simulator">
+    ```bash
+    open -a Simulator
+    ```
+  </Step>
+  
+  <Step title="Install CocoaPods dependencies">
+    ```bash
+    cd ios
+    pod install
+    cd ..
+    ```
+  </Step>
+  
+  <Step title="Run the app">
+    ```bash
+    flutter run
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  GPS navigation features require a physical device with GPS hardware. Emulators can simulate location but won't provide the full experience.
+</Warning>
+
+## Run on Physical Device
+
+For the best experience, especially for GPS navigation, run on a physical device.
+
+### Android Device
+
+<Steps>
+  <Step title="Enable Developer Options">
+    On your Android device:
+    1. Go to **Settings → About Phone**
+    2. Tap **Build Number** 7 times to enable Developer Options
+  </Step>
+  
+  <Step title="Enable USB Debugging">
+    1. Go to **Settings → Developer Options**
+    2. Enable **USB Debugging**
+  </Step>
+  
+  <Step title="Connect device via USB">
+    Connect your device to your computer with a USB cable
+    
+    Accept the "Allow USB debugging" prompt on your device
+  </Step>
+  
+  <Step title="Verify connection">
+    ```bash
+    flutter devices
+    ```
+    
+    Your device should appear in the list
+  </Step>
+  
+  <Step title="Run the app">
+    ```bash
+    flutter run
+    ```
+    
+    Or select your device in VS Code/Android Studio and press **F5**
+  </Step>
+</Steps>
+
+### iOS Device (macOS only)
+
+<Steps>
+  <Step title="Connect device">
+    Connect your iPhone/iPad via USB
+  </Step>
+  
+  <Step title="Trust computer">
+    Unlock your device and tap **Trust** when prompted
+  </Step>
+  
+  <Step title="Configure signing">
+    Open `ios/Runner.xcworkspace` in Xcode
+    
+    Select your development team in **Signing & Capabilities**
+  </Step>
+  
+  <Step title="Run the app">
+    ```bash
+    flutter run
+    ```
+  </Step>
+</Steps>
+
+## Development Commands
+
+Useful commands for development:
+
+### Hot Reload
+
+Make changes to your code while the app is running:
+
+```bash
+# In the terminal where flutter run is active:
+# Press 'r' to hot reload
+# Press 'R' to hot restart
+# Press 'q' to quit
+```
+
+### Run with specific device
+
+```bash
+# List all devices
+flutter devices
+
+# Run on specific device
+flutter run -d <device_id>
+
+# Example:
+flutter run -d emulator-5554
+flutter run -d chrome  # Web
+```
+
+### Debug mode
+
+```bash
+# Run in debug mode (default)
+flutter run
+
+# Run in profile mode (for performance testing)
+flutter run --profile
+
+# Run in release mode
+flutter run --release
+```
+
+### Clean build
+
+If you encounter build issues:
+
+```bash
+# Clean build artifacts
+flutter clean
+
+# Reinstall dependencies
+flutter pub get
+
+# Run again
+flutter run
+```
+
+## Build for Production
+
+When you're ready to distribute your app:
+
+### Android APK
+
+Build a release APK:
+
+```bash
+# Build APK
+flutter build apk --release
+
+# APK will be created at:
+# build/app/outputs/flutter-apk/app-release.apk
+```
+
+Build App Bundle (recommended for Play Store):
+
+```bash
+# Build App Bundle
+flutter build appbundle --release
+
+# App Bundle will be created at:
+# build/app/outputs/bundle/release/app-release.aab
+```
+
+### iOS App (macOS only)
+
+Build for App Store or TestFlight:
+
+```bash
+# Build iOS app
+flutter build ios --release
+
+# Then open in Xcode to archive:
+open ios/Runner.xcworkspace
+```
+
+In Xcode:
+1. Select **Product → Archive**
+2. Once archived, click **Distribute App**
+3. Follow the prompts to upload to App Store Connect
+
+## Troubleshooting
+
+### Permission Issues
+
+If the app crashes on startup due to permissions:
+
+```bash
+# Android: Ensure all permissions in AndroidManifest.xml
+# Run and manually grant permissions in device Settings → Apps → My Auto Guide
+```
+
+### Supabase Connection Errors
+
+If you see authentication or database errors:
+
+1. Verify your Supabase URL and anon key in `lib/main.dart`
+2. Check that your Supabase project is active
+3. Ensure Row Level Security policies are configured
+4. Check internet connectivity
+
+### GPS Not Working
+
+For GPS navigation features:
+
+1. **Emulator**: Emulators have limited GPS simulation
+2. **Physical device**: Enable Location Services in device settings
+3. **Permissions**: Grant location permissions when prompted
+4. **Background location**: For route tracking, grant "Allow all the time" permission
+
+### Build Failures
+
+<CodeGroup>
+
+```bash Clean and rebuild
+flutter clean
+flutter pub get
+flutter run
+```
+
+```bash Android specific
+cd android
+./gradlew clean
+cd ..
+flutter run
+```
+
+```bash iOS specific
+cd ios
+rm -rf Pods Podfile.lock
+pod install
+cd ..
+flutter run
+```
+
+</CodeGroup>
+
+### Package Version Conflicts
+
+If you encounter dependency conflicts:
+
+```bash
+# Update all packages to latest compatible versions
+flutter pub upgrade
+
+# Or update specific package
+flutter pub upgrade supabase_flutter
+```
+
+## Debugging Tools
+
+### Flutter DevTools
+
+Launch Flutter DevTools for advanced debugging:
+
+```bash
+flutter pub global activate devtools
+flutter pub global run devtools
+```
+
+Then run your app and open DevTools in the browser.
+
+### Logging
+
+View console logs:
+
+```bash
+# Flutter logs
+flutter logs
+
+# Android logs (device specific)
+adb logcat
+
+# iOS logs
+idevicesyslog
+```
+
+## Key Features to Test
+
+Once the app is running, test these core features:
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock">
+    - User registration
+    - Login/logout
+    - Password reset
+  </Card>
+  
+  <Card title="Vehicle Management" icon="car">
+    - Add vehicle (car/motorcycle)
+    - View vehicle details
+    - Edit vehicle info
+  </Card>
+  
+  <Card title="Maintenance Tracking" icon="wrench">
+    - Configure maintenance schedules
+    - Record completed maintenance
+    - View maintenance history
+  </Card>
+  
+  <Card title="GPS Navigation" icon="map">
+    - Search destinations
+    - Navigate with real-time GPS
+    - Auto-update mileage after route
+  </Card>
+  
+  <Card title="Documents" icon="file">
+    - Upload vehicle documents
+    - View PDFs in-app
+    - Set expiry reminders
+  </Card>
+  
+  <Card title="Notifications" icon="bell">
+    - Receive maintenance reminders
+    - Document expiry alerts
+  </Card>
+</CardGroup>
+
+<Note>
+  **GPS Navigation** requires a physical device with GPS for full functionality. Testing on emulators will have limited location features.
+</Note>
+
+## Next Steps
+
+Now that your app is running:
+
+<CardGroup cols={2}>
+  <Card title="Architecture Overview" icon="sitemap" href="/development/project-structure">
+    Understand the codebase structure
+  </Card>
+  
+  <Card title="Database Schema" icon="database" href="/development/database-schema">
+    Explore the database documentation
+  </Card>
+</CardGroup>

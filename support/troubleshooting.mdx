@@ -1,0 +1,367 @@
+---
+title: 'Troubleshooting'
+description: 'Solutions to common issues in My Auto Guide'
+icon: 'wrench'
+---
+
+## Login & Authentication Issues
+
+### Cannot Login - "Invalid Credentials" Error
+
+**Symptoms**: You receive an "Invalid login credentials" error when trying to sign in.
+
+**Solutions**:
+
+1. **Verify your email and password** - Make sure you're entering the correct credentials. Passwords are case-sensitive.
+
+2. **Check if your email is confirmed**:
+   - If you just registered, check your email for a confirmation link
+   - Click the confirmation link before attempting to login
+   - If you didn't receive the email, tap "Reenviar" (Resend) on the login screen
+
+3. **Reset your password**:
+   - On the login screen, enter your email
+   - Tap "Recuperar contraseña" (Recover Password)
+   - Follow the instructions in the email you receive
+
+4. **Check your internet connection** - Authentication requires an active internet connection
+
+<Note>
+If you see "Tu correo no está confirmado" (Your email is not confirmed), you must verify your email address before you can login. Check your inbox and spam folder for the confirmation email.
+</Note>
+
+### Email Confirmation Not Received
+
+**Solutions**:
+
+1. **Check your spam/junk folder** - Confirmation emails sometimes get filtered
+
+2. **Wait a few minutes** - Email delivery can occasionally be delayed
+
+3. **Resend the confirmation**:
+   - Try logging in with your credentials
+   - When prompted, tap the "Reenviar" (Resend) button
+   - Check your email again (including spam folder)
+
+4. **Verify you entered the correct email** during registration
+
+5. **Add noreply@supabase.io to your contacts** to prevent future filtering
+
+### Session Expired / Logged Out Unexpectedly
+
+**Symptoms**: You're suddenly logged out or your session expires.
+
+**Solutions**:
+
+1. **Simply log back in** - Sessions expire after a period of inactivity for security
+
+2. **Check the "Recuerdame" (Remember Me) box** when logging in to stay signed in longer
+
+3. **If this happens frequently**:
+   - Clear your app cache: Settings > Apps > My Auto Guide > Storage > Clear Cache
+   - Reinstall the app if the issue persists
+
+## GPS & Navigation Issues
+
+### GPS Not Working / Location Not Found
+
+**Symptoms**: The map doesn't show your location, or you see "Activa el GPS para usar Rutas" (Enable GPS to use Routes).
+
+**Solutions**:
+
+1. **Enable location services on your device**:
+
+   **Android**:
+   - Go to Settings > Location
+   - Turn on Location/GPS
+   - Set mode to "High accuracy"
+
+   **iOS**:
+   - Go to Settings > Privacy > Location Services
+   - Turn on Location Services
+   - Find My Auto Guide and set to "While Using the App"
+
+2. **Grant location permissions to the app**:
+   - See the [Permissions Guide](/support/permissions) for detailed instructions
+   - Make sure you've allowed location access when prompted
+
+3. **Check for GPS signal**:
+   - Go outside or near a window for better GPS reception
+   - GPS doesn't work well indoors or in urban canyons
+
+4. **Restart your device** to reset the GPS module
+
+5. **Verify you're not in airplane mode**
+
+<Warning>
+If you denied location permissions permanently, you'll need to manually enable them in your device settings. The app cannot request permissions again after they've been permanently denied.
+</Warning>
+
+### Route Not Calculating / "Error al trazar ruta"
+
+**Symptoms**: Routes fail to calculate, or you see an error message when trying to navigate.
+
+**Solutions**:
+
+1. **Check your internet connection**:
+   - Route calculation requires internet access to query the OSRM routing service
+   - Try switching between Wi-Fi and mobile data
+
+2. **Verify your destination**:
+   - Make sure you've selected a valid destination from the search results
+   - Try searching with different keywords or a different nearby address
+
+3. **Check your starting location**:
+   - Ensure the app has obtained your current GPS location (blue marker on map)
+   - If not, see "GPS Not Working" above
+
+4. **Try again in a moment** - Routing services may occasionally experience brief outages
+
+5. **Use Free Tracking mode** as an alternative if you don't need turn-by-turn directions
+
+### Kilometrage Not Updating After Navigation
+
+**Symptoms**: Your vehicle's kilometrage doesn't increase after completing a route.
+
+**Solutions**:
+
+1. **Make sure you completed the route**:
+   - Either reach the destination (within 50 meters)
+   - Or manually tap "Finalizar recorrido" (End Journey)
+
+2. **Check your internet connection** when ending the trip - the app needs to sync with the database
+
+3. **Verify the update**:
+   - Go back to the main dashboard
+   - The kilometrage should be updated
+   - If not, pull down to refresh
+
+4. **If the issue persists**, the update may have failed:
+   - Note the distance you traveled
+   - Manually add it to your kilometrage by editing your vehicle (if this feature is added)
+
+## Document Upload Issues
+
+### Cannot Upload Documents / Upload Fails
+
+**Symptoms**: Document uploads fail, time out, or show an error message.
+
+**Solutions**:
+
+1. **Check your internet connection**:
+   - Uploads require a stable internet connection
+   - Try using Wi-Fi instead of mobile data for large files
+
+2. **Verify file format**:
+   - Supported formats: PDF, JPG, JPEG, PNG, WEBP, HEIC, GIF
+   - Unsupported formats will be rejected
+
+3. **Check file size**:
+   - Very large files (>10MB) may fail to upload
+   - Compress images before uploading
+   - For PDFs, use a compression tool to reduce file size
+
+4. **Grant storage permissions**:
+   - The app needs permission to access your files
+   - See the [Permissions Guide](/support/permissions)
+
+5. **Try a different file** to rule out file corruption
+
+6. **Clear app cache** and try again:
+   - Settings > Apps > My Auto Guide > Storage > Clear Cache
+
+### Cannot View Documents / "Error al listar" Message
+
+**Symptoms**: Documents don't display, or you see an error when trying to view them.
+
+**Solutions**:
+
+1. **Check your internet connection** - Viewing documents requires downloading them from cloud storage
+
+2. **Wait and retry** - Signed URLs are generated on-demand and may take a moment
+
+3. **Refresh the document list**:
+   - Close and reopen the document manager
+   - The app will generate new signed URLs
+
+4. **Verify the document wasn't deleted**:
+   - If someone deleted it from another device, it won't be available
+
+5. **Re-upload the document** if it continues to fail
+
+### Document Appears Blank or Corrupted
+
+**Solutions**:
+
+1. **Check the original file** on your device to see if it's corrupted
+
+2. **Try downloading and opening externally**:
+   - Long-press the document thumbnail
+   - Choose to open in another app
+
+3. **Re-upload the document** if it's corrupted in the cloud
+
+4. **For PDFs**, try converting to an image format (JPG/PNG) and uploading that instead
+
+## Notification Issues
+
+### Not Receiving Maintenance Notifications
+
+**Symptoms**: You don't get alerts when maintenance is due.
+
+**Solutions**:
+
+1. **Verify maintenance dates are set**:
+   - Go to "Parametrización mantenimientos"
+   - Ensure all dates are configured
+   - Tap "Guardar y calcular" to save
+
+2. **Check notification permissions**:
+
+   **Android**:
+   - Settings > Apps > My Auto Guide > Notifications
+   - Enable all notification channels
+
+   **iOS**:
+   - Settings > My Auto Guide > Notifications
+   - Enable "Allow Notifications"
+
+3. **Disable battery optimization (Android only)**:
+   - Settings > Battery > Battery Optimization
+   - Find My Auto Guide
+   - Set to "Not optimized"
+   - This prevents the system from killing the notification scheduler
+
+4. **Check Do Not Disturb mode** on your device
+
+5. **Restart the app** to reinitialize the notification system
+
+6. **Reinstall the app** if notifications still don't work
+
+<Warning>
+Notifications are scheduled locally on your device. If you clear app data or reinstall, you'll need to open the app and reconfigure maintenance dates to reschedule notifications.
+</Warning>
+
+### Receiving Too Many Notifications
+
+**Solutions**:
+
+1. **Update your maintenance dates**:
+   - Open "Parametrización mantenimientos"
+   - Update dates for completed maintenance items
+   - This will reschedule notifications
+
+2. **Adjust notification settings**:
+   - Android: Settings > Apps > My Auto Guide > Notifications
+   - iOS: Settings > My Auto Guide > Notifications
+   - Customize which types of notifications you receive
+
+## App Performance Issues
+
+### App is Slow or Laggy
+
+**Solutions**:
+
+1. **Clear app cache**:
+   - Android: Settings > Apps > My Auto Guide > Storage > Clear Cache
+   - iOS: Delete and reinstall the app
+
+2. **Close other apps** running in the background
+
+3. **Restart your device** to free up memory
+
+4. **Check available storage** on your device - low storage can slow down apps
+
+5. **Update to the latest version** of My Auto Guide
+
+6. **Check for OS updates** for your device
+
+### App Crashes or Closes Unexpectedly
+
+**Solutions**:
+
+1. **Update the app** to the latest version
+
+2. **Clear app cache and data**:
+   - Android: Settings > Apps > My Auto Guide > Storage
+   - Clear Cache first, then try Clear Data if needed
+   - Note: Clearing data will log you out
+
+3. **Restart your device**
+
+4. **Reinstall the app**:
+   - Uninstall My Auto Guide
+   - Restart your device
+   - Reinstall from the app store
+   - Your data is stored in the cloud and will sync back
+
+5. **Check for OS updates** - Outdated operating systems can cause compatibility issues
+
+6. **Report the crash** to support@myautoguide.com with:
+   - Device model and OS version
+   - What you were doing when it crashed
+   - Whether it happens repeatedly
+
+## Platform-Specific Issues
+
+### Android: Camera Permission Issues
+
+**Symptoms**: Cannot use camera to take photos of documents.
+
+**Solutions**:
+
+1. **Grant camera permission**:
+   - Settings > Apps > My Auto Guide > Permissions
+   - Enable Camera
+
+2. **Check if another app is using the camera**
+
+3. **Restart the app** after granting permission
+
+4. **Use gallery/file picker instead** as a workaround
+
+### Android: Background Location Access
+
+**Symptoms**: GPS tracking stops when app is in background.
+
+**Solutions**:
+
+1. **Grant background location permission**:
+   - Settings > Apps > My Auto Guide > Permissions > Location
+   - Select "Allow all the time"
+
+2. **Disable battery optimization** (see Notification Issues section above)
+
+3. **Keep the app in foreground** during navigation for best results
+
+### iOS: Location Permission Issues
+
+**Symptoms**: GPS not working on iOS devices.
+
+**Solutions**:
+
+1. **Grant location permission**:
+   - Settings > My Auto Guide > Location
+   - Select "While Using the App"
+
+2. **Enable Precise Location**:
+   - Settings > My Auto Guide > Location
+   - Turn on "Precise Location"
+
+3. **Check Location Services are enabled**:
+   - Settings > Privacy > Location Services
+   - Make sure Location Services is turned on globally
+
+## Still Having Issues?
+
+If you've tried the solutions above and are still experiencing problems:
+
+1. **Check the [FAQ](/support/faq)** for additional information
+2. **Review the [Permissions Guide](/support/permissions)** to ensure all necessary permissions are granted
+3. **Contact support** at support@myautoguide.com with:
+   - A detailed description of the issue
+   - Your device model and operating system version
+   - Screenshots if applicable
+   - Steps to reproduce the problem
+
+Our support team typically responds within 24-48 hours.

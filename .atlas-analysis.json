@@ -1,0 +1,106 @@
+{
+  "projectType": "saas",
+  "projectName": "My Auto Guide",
+  "projectDescription": "A comprehensive Flutter mobile application for managing vehicles, maintenance schedules, documents, and GPS navigation.",
+  "theme": "almond",
+  "primaryColor": "#2563eb",
+  "lightColor": "#60a5fa",
+  "darkColor": "#1e40af",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/vehicle-management",
+              "features/maintenance-tracking",
+              "features/document-management",
+              "features/gps-navigation",
+              "features/notifications"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/adding-vehicles",
+              "guides/maintenance-configuration",
+              "guides/uploading-documents",
+              "guides/using-navigation",
+              "guides/runt-integration",
+              "guides/manuals-videos"
+            ]
+          },
+          {
+            "group": "Help & Support",
+            "pages": [
+              "support/faq",
+              "support/troubleshooting",
+              "support/permissions"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Development",
+        "groups": [
+          {
+            "group": "Setup",
+            "pages": [
+              "development/environment-setup",
+              "development/supabase-configuration",
+              "development/running-app"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "development/project-structure",
+              "development/database-schema",
+              "development/authentication"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "development/supabase-integration",
+              "development/openstreetmap",
+              "development/notifications-setup"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Secure user authentication with Supabase",
+    "Vehicle registration and management (cars and motorcycles)",
+    "Maintenance tracking with automated reminders",
+    "Document storage and management (SOAT, insurance, etc.)",
+    "GPS navigation with OpenStreetMap and real-time tracking",
+    "RUNT integration for official vehicle information",
+    "PDF manuals and YouTube tutorial viewer",
+    "Local notifications for maintenance alerts",
+    "Automatic mileage tracking during navigation"
+  ],
+  "publicApiSurface": [
+    "CarRentalLoginScreen - Login screen",
+    "InicioApp - Main dashboard screen",
+    "RutasScreen - GPS navigation screen",
+    "ParametrizacionMantenimientosScreen - Maintenance configuration screen",
+    "RuntWebViewScreen - RUNT web integration screen",
+    "GuiaScreen - Manuals and guides viewer",
+    "AgregarVehiculo - Add motorcycle screen",
+    "AgregarCarro - Add car screen",
+    "RegistroScreen - User registration screen"
+  ]
+}
